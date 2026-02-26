@@ -1,0 +1,6 @@
+@QREventPlatform.Advanced_HostAddress = http://localhost:5036
+
+GET {{QREventPlatform.Advanced_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

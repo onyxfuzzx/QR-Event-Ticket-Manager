@@ -1,0 +1,59 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Dotnet build artifacts
+**/bin/
+**/obj/
+**/.vs/
+
+# Node/Angular artifacts
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/.cache/
+**/.parcel-cache/
+
+# Logs
+*.log
+**/logs/
+**/log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Temp files
+*.tmp
+*.temp
+*.pid
+*.seed
+*.stackdump
+**/tmp/
+**/temp/
+
+# Runtime/cache outputs
+**/coverage/
+**/.nyc_output/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+**/*secrets*.json
+**/*secret*.json
+**/*.pubxml.user
+**/appsettings.Local.json
+**/appsettings.*.local.json
+
+# IDE and tooling caches
+**/.eslintcache
+**/.stylelintcache
+**/.sass-cache/

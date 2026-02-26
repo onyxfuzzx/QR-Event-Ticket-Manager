@@ -1,0 +1,19 @@
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+
+namespace QREventPlatform.Advanced.Data;
+
+public class DapperContext
+{
+    private readonly string _connectionString;
+
+    public DapperContext(IConfiguration config)
+    {
+        _connectionString = config.GetConnectionString("DefaultConnection")
+            ?? throw new Exception("DefaultConnection not found in appsettings.json");
+    }
+
+    public IDbConnection CreateConnection()
+        => new SqlConnection(_connectionString);
+}

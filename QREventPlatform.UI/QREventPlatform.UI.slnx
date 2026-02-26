@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="QREventPlatform.UI.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+</Solution>

@@ -1,0 +1,62 @@
+<div class="bg-white border rounded-xl p-4 space-y-4 mt-6">
+
+  <h3 class="font-semibold text-gray-900">
+    Event Registration Form
+  </h3>
+
+  <p class="text-sm text-gray-500">
+    Configure the form attendees must fill before receiving tickets
+  </p>
+
+  <!-- FORM FIELDS -->
+  <div class="space-y-3">
+
+    <div *ngFor="let field of fields; let i = index; trackBy: trackByIndex"
+         class="grid grid-cols-12 gap-2 items-center">
+
+      <!-- LABEL -->
+      <input class="col-span-3 input"
+             placeholder="Field label"
+             [(ngModel)]="field.label" />
+
+      <!-- KEY -->
+      <input class="col-span-3 input"
+             placeholder="Field key"
+             [(ngModel)]="field.key" />
+
+      <!-- TYPE -->
+      <select class="col-span-3 input"
+              [(ngModel)]="field.type">
+        <option value="text">Text</option>
+        <option value="email">Email</option>
+        <option value="phone">Phone</option>
+        <option value="number">Number</option>
+        <option value="dropdown">Dropdown</option>
+      </select>
+
+      <!-- REQUIRED -->
+      <label class="col-span-2 flex items-center gap-2 text-sm">
+        <input type="checkbox" [(ngModel)]="field.required" />
+        Required
+      </label>
+
+      <!-- DELETE -->
+      <button *ngIf="!['firstName','lastName','email','phone'].includes(field.key)"
+              class="col-span-1 text-red-600 hover:underline"
+              (click)="removeField(i)">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- ADD FIELD -->
+  <button class="btn btn-outline" (click)="addField()">
+    + Add Field
+  </button>
+
+  <button class="btn btn-primary" (click)="save()">
+    Save Form
+  </button>
+
+
+</div>

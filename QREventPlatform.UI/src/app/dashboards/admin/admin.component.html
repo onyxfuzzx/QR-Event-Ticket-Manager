@@ -1,0 +1,532 @@
+  <div class="min-h-screen bg-gray-50 p-6 space-y-6">
+
+  <!-- HEADER -->
+  <div>
+    <h2 class="text-2xl font-semibold text-gray-900">
+      Admin Dashboard
+    </h2>
+    <div class="flex justify-end">
+      <button class="btn btn-danger"
+              (click)="logout()">
+        Logout
+      </button>
+
+    </div>
+
+    <p class="text-sm text-gray-500">
+      Manage events, tickets, workers, and scans
+    </p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-white border rounded-xl p-4">
+      <p class="text-sm text-gray-500">Events</p>
+      <p class="text-2xl font-bold">{{ summary.totalEvents }}</p>
+    </div>
+    <div class="bg-white border rounded-xl p-4">
+      <p class="text-sm text-gray-500">Tickets</p>
+      <p class="text-2xl font-bold">{{ summary.totalTickets }}</p>
+    </div>
+    <div class="bg-white border rounded-xl p-4">
+      <p class="text-sm text-gray-500">Used</p>
+      <p class="text-2xl font-bold">{{ summary.usedTickets }}</p>
+    </div>
+    <div class="bg-white border rounded-xl p-4">
+      <p class="text-sm text-gray-500">Revalidations</p>
+      <p class="text-2xl font-bold">{{ summary.revalidations }}</p>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <button class="tab"
+            [class.active]="activeTab==='events'"
+            (click)="switchTab('events')">
+      Events
+    </button>
+
+    <button class="tab"
+            [class.active]="activeTab==='tickets'"
+            (click)="switchTab('tickets')">
+      Tickets
+    </button>
+
+    <button class="tab"
+            [class.active]="activeTab==='workers'"
+            (click)="switchTab('workers')">
+      Workers
+    </button>
+
+    <button class="tab"
+            [class.active]="activeTab==='assign'"
+            (click)="switchTab('assign')">
+      Assign
+    </button>
+
+    <button class="tab"
+            [class.active]="activeTab==='deleted'"
+            (click)="switchTab('deleted')">
+      Deleted
+    </button>
+
+    <button class="tab"
+            [class.active]="activeTab==='scans'"
+            (click)="switchTab('scans')">
+      Scans
+    </button>
+
+    <button class="tab"
+            [class.active]="activeTab==='formaudit'"
+            (click)="switchTab('formaudit')">
+      Form Audit
+    </button>
+
+  </div>
+
+
+
+  <!-- EVENTS -->
+  <div *ngIf="activeTab==='events'" class="space-y-4">
+    <div class="bg-white border rounded-xl p-4 space-y-3">
+      <h3 class="font-semibold">Create Event</h3>
+
+      <div class="grid md:grid-cols-3 gap-2">
+        <input class="input" placeholder="Event name" [(ngModel)]="newEvent.name" />
+        <input class="input" placeholder="Location" [(ngModel)]="newEvent.location" />
+        <input class="input" type="date" [(ngModel)]="newEvent.date" />
+      </div>
+
+      <button class="btn-primary" (click)="createEvent()">Create Event</button>
+    </div>
+
+    <div class="bg-white border rounded-xl overflow-x-auto">
+      <select class="input"
+              [(ngModel)]="selectedEventId">
+        <option value="">Select event to configure form</option>
+        <option *ngFor="let e of events" [value]="e.id">
+          {{ e.name }}
+        </option>
+      </select>
+
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Name</th>
+            <th class="th">Location</th>
+            <th class="th">Date</th>
+            <th class="th">Tickets</th>
+            <th class="th">Used</th>
+            <th class="th">Action</th>
+            <th class="th">Form</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let e of events" class="border-t">
+            <td class="td">{{ e.name }}</td>
+            <td class="td">{{ e.location }}</td>
+            <td class="td">{{ e.eventDate | date:'mediumDate' }}</td>
+            <td class="td">{{ e.tickets }}</td>
+            <td class="td">{{ e.usedTickets }}</td>
+            <td class="td">
+              <button class="btn btn-danger"
+                      (click)="deleteEvent(e.id)">
+                Delete
+              </button>
+            </td>
+            <td class="td">
+              <button class="btn-primary"
+                      (click)="formOpen(e.id)">
+                Form
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <app-event-form-builder *ngIf="selectedEventId"
+                            [eventId]="selectedEventId">
+    </app-event-form-builder>
+  </div>
+
+
+
+  <!-- TICKETS -->
+  <div *ngIf="activeTab==='tickets'" class="bg-white border rounded-xl p-4 space-y-4">
+    <h3 class="font-semibold">Ticket Management</h3>
+
+    <select class="input"
+            [(ngModel)]="selectedEventId"
+            (change)="onTicketEventChange()">
+      <option value="">Select event</option>
+      <option *ngFor="let e of events" [value]="e.id">
+        {{ e.name }}
+      </option>
+    </select>
+
+
+    <button class="btn-primary"
+            [disabled]="!selectedEventId"
+            (click)="generateTicket(selectedEventId)">
+      Generate Ticket
+    </button>
+
+    <div *ngIf="eventTicketStats; else selectEventHint"
+         class="grid grid-cols-3 gap-4 text-sm">
+      <div>
+        <b>Total:</b> {{ eventTicketStats.totalTickets }}
+      </div>
+      <div>
+        <b>Used:</b> {{ eventTicketStats.usedTickets }}
+      </div>
+      <div>
+        <b>Revalidated:</b> {{ eventTicketStats.revalidations }}
+      </div>
+    </div>
+
+    <ng-template #selectEventHint>
+      <p class="text-sm text-gray-500">
+        Select an event to view ticket statistics
+      </p>
+    </ng-template>
+    <!-- GENERATED TICKETS -->
+    <div *ngIf="selectedEventId" class="mt-6 bg-white border rounded-xl overflow-x-auto">
+
+      <div class="p-4 border-b">
+        <h4 class="font-semibold text-gray-900">
+          Generated Tickets
+        </h4>
+        <p class="text-sm text-gray-500">
+          Tickets created for this event
+        </p>
+      </div>
+
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Created</th>
+            <th class="th">Ticket Code</th>
+            <th class="th">Status</th>
+            <th class="th">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let t of eventTickets" class="border-t">
+            <td class="td text-gray-500">
+              {{ t.createdAt | date:'short' }}
+            </td>
+
+            <td class="td font-mono">
+              {{ t.code }}
+            </td>
+
+            <td class="td font-semibold"
+                [ngClass]="{
+                'text-green-600': !t.IsUsed,
+                'text-gray-500': t.IsUsed
+              }">
+              {{ t.isUsed ? 'Used' : 'Unused' }}
+            </td>
+
+            <td class="td">
+              <button class="text-blue-600 hover:underline"
+                      (click)="openQr(t.qrUrl)">
+                View QR
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="!eventTickets.length && !loadingEventTickets"
+           class="p-4 text-sm text-gray-500 text-center">
+        No tickets generated for this event
+      </div>
+
+      <div *ngIf="loadingEventTickets"
+           class="p-4 text-sm text-gray-400 text-center">
+        Loading tickets…
+      </div>
+
+    </div>
+
+
+
+  </div>
+
+  <!-- WORKERS -->
+  <div *ngIf="activeTab==='workers'" class="space-y-4">
+
+    <!-- CREATE WORKER -->
+    <div class="bg-white border rounded-xl p-4 space-y-3">
+      <h3 class="font-semibold">Create Worker</h3>
+
+      <div class="grid md:grid-cols-3 gap-2">
+        <input class="input" placeholder="Name" [(ngModel)]="newWorker.name" />
+        <input class="input" placeholder="Email" [(ngModel)]="newWorker.email" />
+        <input class="input" placeholder="Password" [(ngModel)]="newWorker.password" />
+      </div>
+
+      <button class="btn-primary" (click)="createWorker()">Create Worker</button>
+    </div>
+
+    <!-- WORKERS LIST -->
+    <div class="bg-white border rounded-xl overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Name</th>
+            <th class="th">Email</th>
+            <th class="th">Status</th>
+            <th class="th">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let w of workers" class="border-t">
+            <td class="td">{{ w.name }}</td>
+            <td class="td">{{ w.email }}</td>
+            <td class="td">
+              <span class="px-2 py-1 rounded text-xs font-medium"
+                    [ngClass]="{
+                      'bg-green-100 text-green-700': w.isActive,
+                      'bg-red-100 text-red-700': !w.isActive
+                    }">
+                {{ w.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="td">
+              <button *ngIf="w.isActive"
+                      class="btn btn-danger"
+                      (click)="deleteWorker(w.id)">
+                Delete
+              </button>
+              <button *ngIf="!w.isActive"
+                      class="text-blue-600 hover:underline"
+                      (click)="restoreWorker(w.id)">
+                Restore
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ASSIGN -->
+  <div *ngIf="activeTab==='assign'" class="space-y-4">
+
+    <div class="bg-white border rounded-xl p-4 space-y-3">
+      <h3 class="font-semibold">Assign Workers to Event</h3>
+
+      <!-- EVENT SELECT -->
+      <select class="input" [(ngModel)]="selectedEventId" (change)="onEventChange()">
+        <option value="">Select event</option>
+        <option *ngFor="let e of events" [value]="e.id">
+          {{ e.name }}
+        </option>
+      </select>
+
+      <!-- SINGLE ASSIGN -->
+      <div class="flex gap-2">
+        <select class="input flex-1" [(ngModel)]="selectedWorkerId">
+          <option value="">Select worker</option>
+          <option *ngFor="let w of assignableWorkers" [value]="w.id">
+            {{ w.name }}
+          </option>
+        </select>
+
+        <button class="btn-primary" (click)="assignWorker()">
+          Assign
+        </button>
+      </div>
+    </div>
+
+    <!-- BULK ASSIGN -->
+    <div class="bg-white border rounded-xl overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Select</th>
+            <th class="th">Name</th>
+            <th class="th">Email</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let w of assignableWorkers" class="border-t">
+            <td class="td">
+              <input type="checkbox"
+                     [disabled]="assignedWorkerIds.has(w.id)"
+                     (change)="onWorkerCheckboxChange(w.id, $event)" />
+            </td>
+            <td class="td">{{ w.name }}</td>
+            <td class="td">{{ w.email }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="p-3">
+        <button class="btn-primary" (click)="bulkAssign()">
+          Assign Selected
+        </button>
+      </div>
+    </div>
+
+    <!-- ASSIGNED WORKERS -->
+    <div class="bg-white border rounded-xl overflow-x-auto">
+      <table *ngIf="eventWorkers[selectedEventId]?.length"
+             class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Worker</th>
+            <th class="th">Email</th>
+            <th class="th">Assigned</th>
+            <th class="th">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let w of eventWorkers[selectedEventId]" class="border-t">
+            <td class="td">{{ w.name }}</td>
+            <td class="td">{{ w.email }}</td>
+            <td class="td text-gray-500">{{ w.assignedAt | date:'short' }}</td>
+            <td class="td">
+              <button class="btn btn-danger"
+                      (click)="unassignWorker(w.assignmentId, selectedEventId)">
+                Unassign
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!eventWorkers[selectedEventId]?.length"
+         class="p-4 text-sm text-gray-500">
+        No workers assigned
+      </p>
+    </div>
+
+  </div>
+
+  <!-- DELETED -->
+  <div *ngIf="activeTab==='deleted'" class="space-y-4">
+
+    <div class="bg-white border rounded-xl overflow-x-auto">
+      <table *ngIf="deletedWorkers.length" class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Name</th>
+            <th class="th">Email</th>
+            <th class="th">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let w of deletedWorkers" class="border-t">
+            <td class="td">{{ w.Name }}</td>
+            <td class="td">{{ w.Email }}</td>
+            <td class="td">
+              <button class="text-blue-600 hover:underline"
+                      (click)="restoreWorker(w.Id)">
+                Restore
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p *ngIf="!deletedWorkers.length"
+         class="p-4 text-sm text-gray-500">
+        No deleted workers
+      </p>
+    </div>
+
+  </div>
+
+
+  <!-- SCANS -->
+  <div *ngIf="activeTab==='scans'" class="bg-white border rounded-xl overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="th">Time</th>
+          <th class="th">Ticket</th>
+          <th class="th">Event</th>
+          <th class="th">Worker</th>
+          <th class="th">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of scanLogs" class="border-t">
+          <td class="td text-gray-500">{{ s.ScannedAt | date:'short' }}</td>
+          <td class="td font-mono">{{ s.TicketCode }}</td>
+          <td class="td">{{ s.EventName }}</td>
+          <td class="td">{{ s.WorkerName }}</td>
+          <td class="td font-semibold"
+              [ngClass]="{
+                  'text-green-600': s.ScanResult==='VALID',
+                  'text-yellow-600': s.ScanResult==='REVALIDATED',
+                  'text-red-600': s.ScanResult==='INVALID',
+                  'text-red-700': s.ScanResult==='UNAUTHORIZED'
+
+                }">
+            {{ s.ScanResult }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- FORM AUDIT -->
+  <div *ngIf="activeTab==='formaudit'" class="space-y-4">
+
+    <div class="bg-white border rounded-xl p-4">
+      <h3 class="font-semibold mb-2">Form Audit</h3>
+
+      <select class="input"
+              [(ngModel)]="auditEventId"
+              (change)="loadFormAudit()">
+        <option value="">Select Event</option>
+        <option *ngFor="let e of events" [value]="e.id">
+          {{ e.name }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="auditColumns.length"
+         class="bg-white border rounded-xl overflow-x-auto">
+
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="th">Submitted</th>
+            <th *ngFor="let col of auditColumns" class="th">
+              {{ col }}
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let row of auditRows">
+            <td class="td text-gray-500">
+              {{ row.createdAt | date:'short' }}
+            </td>
+
+            <td *ngFor="let col of auditColumns" class="td">
+              {{ row.data[col] || '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p *ngIf="!auditRows.length && auditEventId"
+       class="text-sm text-gray-500 text-center">
+      No submissions found
+    </p>
+
+  </div>
+
+</div>

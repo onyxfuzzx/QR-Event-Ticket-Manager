@@ -1,0 +1,76 @@
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+  <div class="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8">
+
+    <!-- HEADER -->
+    <div class="mb-6 text-center">
+      <h2 class="text-2xl font-bold text-gray-900">
+        {{ eventName || 'Event Registration' }}
+      </h2>
+      <p class="text-sm text-gray-500 mt-1">
+        Please fill the form to receive your ticket
+      </p>
+    </div>
+
+    <!-- LOADING -->
+    <div *ngIf="loading" class="text-center text-gray-400">
+      Loading registration form…
+    </div>
+
+    <!-- FORM -->
+    <form *ngIf="!loading && !success"
+          (ngSubmit)="submit()"
+          class="space-y-4">
+
+      <div *ngFor="let f of fields" class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">
+          {{ f.label }}
+          <span *ngIf="f.required" class="text-red-500">*</span>
+        </label>
+
+        <input *ngIf="f.type !== 'dropdown'"
+               class="w-full rounded-lg border px-3 py-2
+                 focus:ring-2 focus:ring-blue-500
+                 focus:border-blue-500 outline-none"
+               [required]="f.required"
+               [(ngModel)]="formData[f.key]"
+               [name]="f.key"
+               [type]="f.type === 'email' ? 'email' : 'text'" />
+
+        <select *ngIf="f.type === 'dropdown'"
+                class="w-full rounded-lg border px-3 py-2
+                 focus:ring-2 focus:ring-blue-500
+                 focus:border-blue-500 outline-none"
+                [(ngModel)]="formData[f.key]"
+                [name]="f.key"
+                [required]="f.required">
+          <option value="" disabled selected>
+            Select {{ f.label }}
+          </option>
+          <option *ngFor="let o of f.options" [value]="o">
+            {{ o }}
+          </option>
+        </select>
+      </div>
+
+      <button type="submit"
+              class="w-full mt-4 py-2 rounded-lg
+               bg-blue-600 text-white font-semibold
+               hover:bg-blue-700 transition">
+        Register & Get Ticket
+      </button>
+    </form>
+
+    <!-- SUCCESS -->
+    <div *ngIf="success"
+         class="text-center space-y-2">
+      <div class="text-green-600 text-3xl">🎉</div>
+      <p class="text-lg font-semibold text-gray-900">
+        Registration successful!
+      </p>
+      <p class="text-sm text-gray-500">
+        Your ticket has been sent to your email.
+      </p>
+    </div>
+
+  </div>
+</div>
