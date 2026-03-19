@@ -1,62 +1,281 @@
-<div class="bg-white border rounded-xl p-4 space-y-4 mt-6">
+<div class="fb-wrapper">
 
-  <h3 class="font-semibold text-gray-900">
-    Event Registration Form
-  </h3>
-
-  <p class="text-sm text-gray-500">
-    Configure the form attendees must fill before receiving tickets
-  </p>
-
-  <!-- FORM FIELDS -->
-  <div class="space-y-3">
-
-    <div *ngFor="let field of fields; let i = index; trackBy: trackByIndex"
-         class="grid grid-cols-12 gap-2 items-center">
-
-      <!-- LABEL -->
-      <input class="col-span-3 input"
-             placeholder="Field label"
-             [(ngModel)]="field.label" />
-
-      <!-- KEY -->
-      <input class="col-span-3 input"
-             placeholder="Field key"
-             [(ngModel)]="field.key" />
-
-      <!-- TYPE -->
-      <select class="col-span-3 input"
-              [(ngModel)]="field.type">
-        <option value="text">Text</option>
-        <option value="email">Email</option>
-        <option value="phone">Phone</option>
-        <option value="number">Number</option>
-        <option value="dropdown">Dropdown</option>
-      </select>
-
-      <!-- REQUIRED -->
-      <label class="col-span-2 flex items-center gap-2 text-sm">
-        <input type="checkbox" [(ngModel)]="field.required" />
-        Required
-      </label>
-
-      <!-- DELETE -->
-      <button *ngIf="!['firstName','lastName','email','phone'].includes(field.key)"
-              class="col-span-1 text-red-600 hover:underline"
-              (click)="removeField(i)">
-        ✕
+  <!-- HEADER -->
+  <div class="fb-header">
+    <div class="fb-header-left">
+      <div class="fb-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" x2="8" y1="13" y2="13"/>
+          <line x1="16" x2="8" y1="17" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="fb-title">Registration Form Builder</h3>
+        <p class="fb-subtitle">{{ fields.length }} fields · Drag to reorder</p>
+      </div>
+    </div>
+    <div class="fb-header-actions">
+      <button class="fb-preview-btn" [class.active]="showPreview" (click)="showPreview = !showPreview">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        {{ showPreview ? 'Edit' : 'Preview' }}
       </button>
     </div>
   </div>
 
-  <!-- ADD FIELD -->
-  <button class="btn btn-outline" (click)="addField()">
-    + Add Field
-  </button>
+  <!-- SUCCESS / ERROR BANNERS -->
+  <div *ngIf="saveSuccess" class="fb-banner fb-banner-success">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+      <polyline points="22 4 12 14.01 9 11.01"/>
+    </svg>
+    Form saved successfully!
+  </div>
 
-  <button class="btn btn-primary" (click)="save()">
-    Save Form
-  </button>
+  <div *ngIf="saveError" class="fb-banner fb-banner-error">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="15" y1="9" x2="9" y2="15"/>
+      <line x1="9" y1="9" x2="15" y2="15"/>
+    </svg>
+    {{ saveError }}
+  </div>
 
+
+  <!-- ============ EDIT MODE ============ -->
+  <div *ngIf="!showPreview" class="fb-fields">
+
+    <div *ngFor="let field of fields; let i = index; trackBy: trackByIndex"
+         class="fb-field-card"
+         [class.fb-field-active]="activeFieldIndex === i"
+         [class.fb-field-locked]="isLocked(field)"
+         [class.fb-drag-over]="dragOverIndex === i"
+         draggable="true"
+         (dragstart)="onDragStart(i)"
+         (dragover)="onDragOver($event, i)"
+         (dragleave)="onDragLeave()"
+         (drop)="onDrop(i)"
+         (dragend)="onDragEnd()">
+
+      <!-- FIELD COLLAPSED ROW -->
+      <div class="fb-field-row" (click)="toggleField(i)">
+
+        <!-- Drag handle -->
+        <div class="fb-drag-handle">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+            <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+          </svg>
+        </div>
+
+        <!-- Type badge -->
+        <span class="fb-type-badge">{{ typeIcons[field.type] || 'Aa' }}</span>
+
+        <!-- Label & key -->
+        <div class="fb-field-info">
+          <span class="fb-field-label">{{ field.label || 'Untitled Field' }}</span>
+          <span class="fb-field-key">{{ field.key || 'no-key' }}</span>
+        </div>
+
+        <!-- Badges -->
+        <div class="fb-field-badges">
+          <span *ngIf="field.required" class="fb-badge fb-badge-required">Required</span>
+          <span *ngIf="isLocked(field)" class="fb-badge fb-badge-locked">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Locked
+          </span>
+        </div>
+
+        <!-- Expand arrow -->
+        <svg class="fb-expand-arrow" [class.rotated]="activeFieldIndex === i"
+             xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+      <!-- FIELD EXPANDED EDITOR -->
+      <div *ngIf="activeFieldIndex === i" class="fb-field-editor" (click)="$event.stopPropagation()">
+
+        <div class="fb-editor-grid">
+          <!-- Label -->
+          <div class="fb-editor-group">
+            <label class="fb-editor-label">Label</label>
+            <input class="fb-editor-input"
+                   placeholder="e.g. Full Name"
+                   [(ngModel)]="field.label"
+                   (ngModelChange)="autoGenerateKey(field)"
+                   [disabled]="isLocked(field)" />
+          </div>
+
+          <!-- Key -->
+          <div class="fb-editor-group">
+            <label class="fb-editor-label">
+              Key
+              <span class="fb-editor-hint">used in API</span>
+            </label>
+            <input class="fb-editor-input fb-editor-mono"
+                   placeholder="e.g. full_name"
+                   [(ngModel)]="field.key"
+                   [disabled]="isLocked(field)" />
+          </div>
+
+          <!-- Type -->
+          <div class="fb-editor-group">
+            <label class="fb-editor-label">Type</label>
+            <select class="fb-editor-input"
+                    [(ngModel)]="field.type"
+                    [disabled]="isLocked(field)">
+              <option value="text">Text</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="number">Number</option>
+              <option value="textarea">Textarea</option>
+              <option value="dropdown">Dropdown</option>
+            </select>
+          </div>
+
+          <!-- Required toggle -->
+          <div class="fb-editor-group">
+            <label class="fb-editor-label">Required</label>
+            <label class="fb-toggle">
+              <input type="checkbox" [(ngModel)]="field.required" [disabled]="isLocked(field)" />
+              <span class="fb-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- DROPDOWN OPTIONS -->
+        <div *ngIf="field.type === 'dropdown'" class="fb-options">
+          <label class="fb-editor-label">Dropdown Options</label>
+          <div *ngFor="let opt of field.options; let oi = index; trackBy: trackByIndex"
+               class="fb-option-row">
+            <input class="fb-editor-input"
+                   placeholder="Option value"
+                   [(ngModel)]="field.options![oi]" />
+            <button class="fb-option-remove" (click)="removeOption(field, oi)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <button class="fb-add-option" (click)="addOption(field)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add Option
+          </button>
+        </div>
+
+        <!-- FIELD ACTIONS -->
+        <div *ngIf="!isLocked(field)" class="fb-field-actions">
+          <button class="fb-action-btn" (click)="moveField(i, i - 1)" [disabled]="i === 0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+            Move Up
+          </button>
+          <button class="fb-action-btn" (click)="moveField(i, i + 1)" [disabled]="i === fields.length - 1">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+            Move Down
+          </button>
+          <button class="fb-action-btn" (click)="duplicateField(i)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Duplicate
+          </button>
+          <button class="fb-action-btn fb-action-delete" (click)="removeField(i)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+            </svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============ PREVIEW MODE ============ -->
+  <div *ngIf="showPreview" class="fb-preview">
+    <div class="fb-preview-card">
+      <h4 class="fb-preview-title">Form Preview</h4>
+      <p class="fb-preview-subtitle">This is how attendees will see the form</p>
+
+      <div *ngFor="let field of fields" class="fb-preview-field">
+        <label class="fb-preview-label">
+          {{ field.label }}
+          <span *ngIf="field.required" class="fb-preview-required">*</span>
+        </label>
+
+        <input *ngIf="field.type !== 'dropdown'"
+               class="fb-preview-input"
+               [type]="field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : 'text'"
+               [placeholder]="'Enter ' + field.label"
+               disabled />
+
+        <select *ngIf="field.type === 'dropdown'" class="fb-preview-input" disabled>
+          <option value="" selected>Select {{ field.label }}</option>
+          <option *ngFor="let o of field.options">{{ o }}</option>
+        </select>
+      </div>
+
+      <button class="fb-preview-submit" disabled>Register &amp; Get Ticket</button>
+    </div>
+  </div>
+
+
+  <!-- FOOTER ACTIONS -->
+  <div class="fb-footer">
+    <button class="fb-add-btn" (click)="addField()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="16"/>
+        <line x1="8" y1="12" x2="16" y2="12"/>
+      </svg>
+      Add Field
+    </button>
+
+    <button class="fb-save-btn" (click)="save()" [disabled]="saving">
+      <ng-container *ngIf="!saving">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save Form
+      </ng-container>
+      <ng-container *ngIf="saving">
+        <div class="fb-spinner"></div>
+        Saving…
+      </ng-container>
+    </button>
+  </div>
 
 </div>

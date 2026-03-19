@@ -11,7 +11,8 @@ import { EventRegisterService } from '../../core/services/event-register.service
   standalone: true,
   selector: 'app-event-register',
   imports: [CommonModule, FormsModule],
-  templateUrl: './event-register.component.html'
+  templateUrl: './event-register.component.html',
+  styleUrls: ['./event-register.component.scss']
 })
 export class EventRegisterComponent implements OnInit {
   eventId!: string;

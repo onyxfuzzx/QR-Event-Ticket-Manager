@@ -8,7 +8,8 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
-  templateUrl: './login.component.html'
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
   email = '';
@@ -47,7 +48,7 @@ export class LoginComponent {
       },
       error: () => {
         this.loading = false;
-        alert('Login failed');
+        this.error = 'Invalid email or password. Please try again.';
       }
     });
   }

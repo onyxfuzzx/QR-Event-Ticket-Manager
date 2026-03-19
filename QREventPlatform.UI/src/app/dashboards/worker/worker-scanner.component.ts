@@ -15,7 +15,7 @@ import { BrowserMultiFormatReader } from '@zxing/browser';
   selector: 'app-worker-scanner',
   imports: [CommonModule],
   templateUrl: './worker-scanner.component.html',
-  styleUrl: './worker-scanner.component.scss'
+  styleUrls: ['./worker-scanner.component.scss']
 })
 export class WorkerScannerComponent implements AfterViewInit, OnDestroy {
 

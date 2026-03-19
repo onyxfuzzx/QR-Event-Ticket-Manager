@@ -1,222 +1,153 @@
-<div class="min-h-screen bg-gray-50 p-6">
+<div class="sa-wrapper">
 
   <!-- HEADER -->
-  <header class="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <h1 class="text-2xl font-semibold text-gray-900">
-        Super Admin Dashboard
-      </h1>
-      <p class="text-sm text-gray-500 mt-1">
-        Platform overview and administrator management
-      </p>
+  <header class="sa-header">
+    <div class="sa-brand">
+      <div class="sa-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+          <path d="M2 17l10 5 10-5"></path>
+          <path d="M2 12l10 5 10-5"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="sa-title">Super Admin</h1>
+        <p class="sa-subtitle">Platform overview &amp; admin management</p>
+      </div>
     </div>
-
-    <button class="px-4 py-2 rounded-lg bg-red-600 text-white
-           hover:bg-red-700 active:scale-[0.98]
-           transition shadow-sm"
-            (click)="logout()">
-      Logout
-    </button>
+    <button class="sa-logout" (click)="logout()">Logout</button>
   </header>
 
+  <div class="sa-body">
 
-  <!-- ================= SUMMARY ================= -->
-  <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-    <div class="summary-card">
-      <p>Total Admins</p>
-      <h3>{{ summary.totalAdmins || 0 }}</h3>
+    <!-- SUMMARY -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <p>Total Admins</p>
+        <h3>{{ summary.totalAdmins || 0 }}</h3>
+      </div>
+      <div class="summary-card">
+        <p>Total Events</p>
+        <h3>{{ summary.totalEvents || 0 }}</h3>
+      </div>
+      <div class="summary-card">
+        <p>Total Tickets</p>
+        <h3>{{ summary.totalTickets || 0 }}</h3>
+      </div>
     </div>
 
-    <div class="summary-card">
-      <p>Total Events</p>
-      <h3>{{ summary.totalEvents || 0 }}</h3>
-    </div>
-
-    <div class="summary-card">
-      <p>Total Tickets</p>
-      <h3>{{ summary.totalTickets || 0 }}</h3>
-    </div>
-  </section>
+    <!-- TABS -->
+    <nav class="sa-tabs">
+      <button class="sa-tab" [class.active]="activeTab==='admins'" (click)="switchTab('admins')">Admins</button>
+      <button class="sa-tab" [class.active]="activeTab==='deleted'" (click)="switchTab('deleted')">Deleted</button>
+      <button class="sa-tab" [class.active]="activeTab==='activity'" (click)="switchTab('activity')">Activity</button>
+    </nav>
 
 
-  <!-- ================= TABS ================= -->
-  <nav class="flex gap-2 mb-8 bg-white border p-2 rounded-xl w-fit">
-    <button class="px-4 py-2 rounded-lg text-sm font-medium border transition"
-            [ngClass]="activeTab==='admins'
-        ? 'bg-blue-600 text-white border-blue-600'
-        : 'bg-white text-gray-700 hover:bg-gray-100'"
-            (click)="switchTab('admins')">
-      Admins
-    </button>
-
-    <button class="px-4 py-2 rounded-lg text-sm font-medium border transition"
-            [ngClass]="activeTab==='deleted'
-        ? 'bg-blue-600 text-white border-blue-600'
-        : 'bg-white text-gray-700 hover:bg-gray-100'"
-            (click)="switchTab('deleted')">
-      Deleted
-    </button>
-
-    <button class="px-4 py-2 rounded-lg text-sm font-medium border transition"
-            [ngClass]="activeTab==='activity'
-        ? 'bg-blue-600 text-white border-blue-600'
-        : 'bg-white text-gray-700 hover:bg-gray-100'"
-            (click)="switchTab('activity')">
-      Activity
-    </button>
-  </nav>
-
-  <!-- ================= ADMINS TAB ================= -->
-  <section *ngIf="activeTab==='admins'" class="space-y-6">
-
-    <!-- CREATE ADMIN -->
-    <div class="bg-white border rounded-2xl p-5">
-      <h3 class="font-medium text-gray-900 mb-4">
-        Create Admin
-      </h3>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <input class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-               placeholder="Name"
-               [(ngModel)]="newAdmin.name" />
-
-        <input class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-               placeholder="Email"
-               [(ngModel)]="newAdmin.email" />
-
-        <input type="password"
-               class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-               placeholder="Password"
-               [(ngModel)]="newAdmin.password" />
+    <!-- ============ ADMINS ============ -->
+    <section *ngIf="activeTab==='admins'" class="space-y-4">
+      <div class="sa-section">
+        <div class="sa-section-header">
+          <h3 class="section-title">Create Admin</h3>
+          <p class="section-subtitle">Add a new administrator to the platform</p>
+        </div>
+        <div class="sa-section-body">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+            <input type="text" placeholder="Name" [(ngModel)]="newAdmin.name" />
+            <input type="email" placeholder="Email" [(ngModel)]="newAdmin.email" />
+            <input type="password" placeholder="Password" [(ngModel)]="newAdmin.password" />
+          </div>
+          <button class="sa-btn-create" [disabled]="loading" (click)="createAdmin()">
+            {{ loading ? 'Creating…' : 'Create Admin' }}
+          </button>
+        </div>
       </div>
 
-      <button class="mt-4 px-4 py-2 rounded-lg text-sm font-medium
-               bg-blue-600 text-white hover:bg-blue-700
-               disabled:opacity-50"
-              [disabled]="loading"
-              (click)="createAdmin()">
-        {{ loading ? 'Creating…' : 'Create Admin' }}
-      </button>
-    </div>
+      <div class="sa-section">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let admin of admins">
+              <td class="font-semibold" style="color: #0f172a;">{{ admin.name }}</td>
+              <td>{{ admin.email }}</td>
+              <td>
+                <span class="badge" [ngClass]="admin.isActive ? 'badge-success' : 'badge-danger'">
+                  {{ admin.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <button *ngIf="admin.isActive" class="action-btn action-delete" (click)="deleteAdmin(admin.id)">Delete</button>
+                <button *ngIf="!admin.isActive" class="action-btn action-restore" (click)="restoreAdmin(admin.id)">Restore</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p *ngIf="!admins.length" class="empty-state">No admins found</p>
+      </div>
+    </section>
 
-    <!-- ADMINS TABLE -->
-    <div class="bg-white border rounded-xl overflow-hidden">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-100 text-gray-600">
+
+    <!-- ============ DELETED ============ -->
+    <section *ngIf="activeTab==='deleted'" class="sa-section">
+      <div class="sa-section-header" style="padding-bottom: 12px;">
+        <h3 class="section-title">Deleted Admins</h3>
+      </div>
+      <table>
+        <thead>
           <tr>
-            <th class="text-left px-4 py-2">Name</th>
-            <th class="text-left px-4 py-2">Email</th>
-            <th class="text-left px-4 py-2">Status</th>
-            <th class="text-left px-4 py-2">Action</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Deleted On</th>
+            <th>Action</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr *ngFor="let admin of admins"
-              class="border-t hover:bg-gray-50">
-            <td class="px-4 py-2">{{ admin.name }}</td>
-            <td class="px-4 py-2">{{ admin.email }}</td>
-            <td class="px-4 py-2">
-              <span class="text-xs font-medium px-2.5 py-1 rounded-full"
-                    [ngClass]="admin.isActive
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-red-100 text-red-700'">
-                {{ admin.isActive ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="px-4 py-2">
-              <button *ngIf="admin.isActive"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs
-               font-medium rounded-full
-               bg-red-50 text-red-600 hover:bg-red-100 transition"
-                      (click)="deleteAdmin(admin.id)">
-                Delete
-              </button>
-
-              <button *ngIf="!admin.isActive"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 text-xs
-               font-medium rounded-full
-               bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                      (click)="restoreAdmin(admin.id)">
-                Restore
-              </button>
-
-
-
-
+          <tr *ngFor="let admin of deletedAdmins">
+            <td class="font-semibold" style="color: #0f172a;">{{ admin.name }}</td>
+            <td>{{ admin.email }}</td>
+            <td style="color: #94a3b8;">{{ admin.createdAt | date:'short' }}</td>
+            <td>
+              <button class="action-btn action-restore" (click)="restoreAdmin(admin.id)">Restore</button>
             </td>
           </tr>
         </tbody>
       </table>
+      <p *ngIf="!deletedAdmins.length" class="empty-state">No deleted admins</p>
+    </section>
 
-      <p *ngIf="!admins.length"
-         class="text-center text-gray-500 py-4">
-        No admins found
-      </p>
-    </div>
-  </section>
 
-  <!-- ================= DELETED ADMINS ================= -->
-  <section *ngIf="activeTab==='deleted'" class="bg-white border rounded-xl overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-gray-100 text-gray-600">
-        <tr>
-          <th class="px-4 py-2 text-left">Name</th>
-          <th class="px-4 py-2 text-left">Email</th>
-          <th class="px-4 py-2 text-left">Deleted On</th>
-          <th class="px-4 py-2 text-left">Action</th>
-        </tr>
-      </thead>
+    <!-- ============ ACTIVITY ============ -->
+    <section *ngIf="activeTab==='activity'" class="sa-section">
+      <div class="sa-section-header" style="padding-bottom: 12px;">
+        <h3 class="section-title">Admin Activity</h3>
+        <p class="section-subtitle">Overview of admin actions across the platform</p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Admin</th>
+            <th>Events Created</th>
+            <th>Tickets Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let act of activity">
+            <td class="font-semibold" style="color: #0f172a;">{{ act.adminName }}</td>
+            <td>{{ act.eventsCreated }}</td>
+            <td>{{ act.ticketsCreated }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="!activity.length" class="empty-state">No activity recorded</p>
+    </section>
 
-      <tbody>
-        <tr *ngFor="let admin of deletedAdmins"
-            class="border-t hover:bg-gray-50">
-          <td class="px-4 py-2">{{ admin.name }}</td>
-          <td class="px-4 py-2">{{ admin.email }}</td>
-          <td class="px-4 py-2">
-            {{ admin.createdAt | date:'short' }}
-          </td>
-          <td class="px-4 py-2">
-            <button class="text-blue-600 hover:underline"
-                    (click)="restoreAdmin(admin.id)">
-              Restore
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p *ngIf="!deletedAdmins.length"
-       class="text-center text-gray-500 py-4">
-      No deleted admins
-    </p>
-  </section>
-
-  <!-- ================= ACTIVITY ================= -->
-  <section *ngIf="activeTab==='activity'" class="bg-white border rounded-xl overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-gray-100 text-gray-600">
-        <tr>
-          <th class="px-4 py-2 text-left">Admin</th>
-          <th class="px-4 py-2 text-left">Events Created</th>
-          <th class="px-4 py-2 text-left">Tickets Created</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let act of activity"
-            class="border-t hover:bg-gray-50">
-          <td class="px-4 py-2">{{ act.AdminName }}</td>
-          <td class="px-4 py-2">{{ act.EventsCreated }}</td>
-          <td class="px-4 py-2">{{ act.TicketsCreated }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <p *ngIf="!activity.length"
-       class="text-center text-gray-500 py-4">
-      No activity recorded
-    </p>
-  </section>
-
+  </div>
 </div>

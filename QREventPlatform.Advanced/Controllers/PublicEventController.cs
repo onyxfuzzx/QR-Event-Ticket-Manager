@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using QREventPlatform.Advanced.Data;
@@ -63,9 +63,9 @@ public class PublicEventController : ControllerBase
         };
 
         await db.ExecuteAsync("""
-        INSERT INTO Tickets (Id, EventId, Code, QrUrl, IsUsed)
-        VALUES (@Id, @EventId, @Code, @QrUrl, 0)
-    """, ticket);
+        INSERT INTO Tickets (Id, EventId, Code, IsActive)
+        VALUES (@Id, @EventId, @Code, 1)
+    """, new { ticket.Id, ticket.EventId, ticket.Code });
 
         // 3. Save form submission
         await db.ExecuteAsync("""

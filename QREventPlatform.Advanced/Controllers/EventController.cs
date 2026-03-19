@@ -1,4 +1,4 @@
-﻿    using Dapper;
+    using Dapper;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using QREventPlatform.Advanced.Data;
@@ -53,7 +53,7 @@
             var adminId = User.GetUserId();
 
             return Ok(db.Query("""
-            SELECT Id, Name, EventDate, CreatedAt
+            SELECT Id as id, Name as name, EventDate as eventDate, CreatedAt as createdAt
             FROM Events
             WHERE CreatedByAdminId = @AdminId
               AND IsActive = 1
@@ -134,7 +134,7 @@
     {
         using var db = _ctx.CreateConnection();
         var adminId = User.GetUserId();
-
+        db.Open();
         using var tx = db.BeginTransaction();
 
         var rows = db.Execute("""

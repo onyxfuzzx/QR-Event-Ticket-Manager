@@ -23,7 +23,7 @@ type LiveLog = {
   selector: 'app-admin',
   imports: [CommonModule, FormsModule, EventFormBuilderComponent],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss'
+  styleUrls: ['./admin.component.scss']
 })
 export class AdminComponent implements OnInit, OnDestroy {
 
@@ -67,6 +67,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   newEvent = { name: '', location: '', date: '' };
   newWorker = { name: '', email: '', password: '' };
+  workerError = '';
 
   selectedEventId = '';
   selectedWorkerId = '';
@@ -155,11 +156,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     // Live scan table
     this.signalr.onTicketScanned(scan => {
       this.scanLogs.unshift({
-        TicketCode: scan.ticketCode,
-        EventName: scan.eventName,
-        WorkerName: scan.workerName,
-        ScanResult: scan.result,
-        ScannedAt: scan.time
+        ticketCode: scan.ticketCode,
+        eventName: scan.eventName,
+        workerName: scan.workerName,
+        scanResult: scan.result,
+        scannedAt: scan.time
       });
     });
   }
@@ -211,7 +212,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       totalTickets: event.tickets,
       usedTickets: event.usedTickets,
       revalidations: this.scanLogs.filter(
-        s => s.EventName === event.name && s.ScanResult === 'REVALIDATED'
+        s => s.eventName === event.name && s.scanResult === 'REVALIDATED'
       ).length
     };
   }
@@ -250,7 +251,13 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   loadScanHistory() {
     this.adminService.getScanHistory().subscribe(res => {
-      this.scanLogs = res;
+      this.scanLogs = res.map((s: any) => ({
+        ticketCode: s.ticketCode,
+        eventName: s.eventName,
+        workerName: s.workerName,
+        scanResult: s.scanResult,
+        scannedAt: s.scannedAt
+      }));
     });
   }
 
@@ -290,12 +297,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   loadSummary() {
     this.adminService.getDashboardSummary().subscribe(r => {
       this.summary = {
-        totalEvents: r.Events ?? 0,
-        totalWorkers: r.Workers ?? 0,
-        totalTickets: r.Tickets ?? 0,
-        usedTickets: r.UsedTickets ?? 0,
-        revalidations: r.Revalidations ?? 0,
-        unauthorized: r.Unauthorized ??0
+        totalEvents: r.events ?? 0,
+        totalWorkers: r.workers ?? 0,
+        totalTickets: r.tickets ?? 0,
+        usedTickets: r.usedTickets ?? 0,
+        revalidations: r.revalidations ?? 0,
+        unauthorized: r.unauthorized ?? 0
       };
     });
   }
@@ -320,12 +327,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   loadEvents() {
     this.eventService.getEvents().subscribe(res => {
       this.events = res.map(e => ({
-        id: e.Id,
-        name: e.Name,
-        location: e.Location ?? '-',
-        eventDate: e.EventDate ? new Date(e.EventDate) : null,
-        tickets: e.Tickets,
-        usedTickets: e.UsedTickets
+        id: e.id,
+        name: e.name,
+        location: e.location ?? '-',
+        eventDate: e.eventDate ? new Date(e.eventDate) : null,
+        tickets: e.tickets,
+        usedTickets: e.usedTickets
       }));
     });
   }
@@ -349,18 +356,42 @@ export class AdminComponent implements OnInit, OnDestroy {
   loadWorkers() {
     this.adminService.getWorkers().subscribe(res => {
       this.workers = res.map(w => ({
-        id: w.Id,
-        name: w.Name,
-        email: w.Email,
-        isActive: w.IsActive
+        id: w.id,
+        name: w.name,
+        email: w.email,
+        isActive: w.isActive
       }));
     });
   }
 
   createWorker() {
-    this.adminService.createWorker(this.newWorker).subscribe(() => {
-      this.newWorker = { name: '', email: '', password: '' };
-      this.loadWorkers();
+    this.workerError = '';
+
+    if (!this.newWorker.name || !this.newWorker.email || !this.newWorker.password) {
+      this.workerError = 'All fields are required';
+      return;
+    }
+
+    if (this.newWorker.password.length < 8) {
+      this.workerError = 'Password must be at least 8 characters';
+      return;
+    }
+
+    this.adminService.createWorker(this.newWorker).subscribe({
+      next: () => {
+        this.newWorker = { name: '', email: '', password: '' };
+        this.workerError = '';
+        this.loadWorkers();
+      },
+      error: (err: any) => {
+        // Handle structured validation errors
+        if (err?.error?.errors) {
+          const firstErrorKey = Object.keys(err.error.errors)[0];
+          this.workerError = err.error.errors[firstErrorKey][0];
+        } else {
+          this.workerError = err?.error || err?.message || 'Failed to create worker. Please try again.';
+        }
+      }
     });
   }
 
@@ -418,11 +449,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.adminService.getEventWorkers(eventId).subscribe((res: any[]) => {
 
       const mapped = res.map(w => ({
-        assignmentId: w.AssignmentId,
-        workerId: w.WorkerId,
-        name: w.Name,
-        email: w.Email,
-        assignedAt: w.AssignedAt
+        assignmentId: w.assignmentId,
+        workerId: w.workerId,
+        name: w.name,
+        email: w.email,
+        assignedAt: w.assignedAt
       }));
 
       this.eventWorkers[eventId] = mapped;
@@ -482,7 +513,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         window.open(res.qrUrl, '_blank');
 
         // 🔄 refresh event-specific data
-        this.loadSummary;
+        this.loadSummary();
         this.loadEventTicketStats(eventId);
         this.loadEventTickets(eventId);
         this.onTicketEventChange();

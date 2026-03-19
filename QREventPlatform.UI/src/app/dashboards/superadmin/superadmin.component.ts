@@ -11,7 +11,7 @@ import { AdminSignalrService, AdminLiveEvent } from '../../core/signalr/admin-si
   selector: 'app-superadmin',
   imports: [CommonModule, FormsModule],
   templateUrl: './superadmin.component.html',
-  styleUrl: './superadmin.component.scss'
+  styleUrls: ['./superadmin.component.scss']
 })
 export class SuperAdminComponent implements OnInit {
 
@@ -61,11 +61,11 @@ export class SuperAdminComponent implements OnInit {
   loadSummary() {
     this.sa.getSummary().subscribe(res => {
       this.summary = {
-        totalAdmins: res.TotalAdmins ?? 0,
-        totalEvents: res.TotalEvents ?? 0,
-        totalTickets: res.TotalTickets ?? 0,
-        usedTickets: res.UsedTickets ?? 0,
-        revalidations: res.Revalidations ?? 0
+        totalAdmins: res.totalAdmins ?? 0,
+        totalEvents: res.totalEvents ?? 0,
+        totalTickets: res.totalTickets ?? 0,
+        usedTickets: res.usedTickets ?? 0,
+        revalidations: res.revalidations ?? 0
       };
     });
   }
@@ -76,11 +76,11 @@ export class SuperAdminComponent implements OnInit {
   loadAdmins() {
     this.sa.getAdmins().subscribe(res => {
       this.admins = res.map(a => ({
-        id: a.Id,
-        name: a.Name,
-        email: a.Email,
-        isActive: a.IsActive,
-        createdAt: a.CreatedAt
+        id: a.id,
+        name: a.name,
+        email: a.email,
+        isActive: a.isActive,
+        createdAt: a.createdAt
       }));
     });
   }
@@ -139,10 +139,10 @@ export class SuperAdminComponent implements OnInit {
   loadDeletedAdmins() {
     this.sa.getDeletedAdmins().subscribe(res => {
       this.deletedAdmins = res.map(a => ({
-        id: a.Id,
-        name: a.Name,
-        email: a.Email,
-        createdAt: a.CreatedAt
+        id: a.id,
+        name: a.name,
+        email: a.email,
+        createdAt: a.createdAt
       }));
     });
   }

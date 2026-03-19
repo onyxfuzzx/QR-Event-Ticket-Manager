@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -419,12 +419,12 @@ public class TicketController : ControllerBase
         var logs = db.Query(
             """
             SELECT
-                TicketCode,
-                EventName,
-                WorkerName,
-                ScanResult,
-                ScanSource,
-                ScannedAt
+                TicketCode as ticketCode,
+                EventName as eventName,
+                WorkerName as workerName,
+                ScanResult as scanResult,
+                ScanSource as scanSource,
+                ScannedAt as scannedAt
             FROM TicketScanLogs
             WHERE AdminId = @AdminId
             ORDER BY ScannedAt DESC
@@ -581,8 +581,7 @@ public class TicketController : ControllerBase
                 Code,
                 IsUsed,
                 CreatedAt,
-                CONCAT('https://
-/qr/', Code) AS QrUrl
+                CONCAT('https://qrevent-hyd4e9acbcfueufk.canadacentral-01.azurewebsites.net/qr/', Code) AS QrUrl
             FROM Tickets
             WHERE EventId = @EventId
               AND IsActive = 1

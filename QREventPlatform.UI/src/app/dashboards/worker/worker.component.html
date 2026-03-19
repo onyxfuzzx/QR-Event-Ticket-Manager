@@ -1,102 +1,92 @@
-<div class="min-h-screen bg-gray-50 flex justify-center">
-  <div class="w-full max-w-md p-4 space-y-5">
+<div class="scanner-wrapper">
 
-    <!-- HEADER -->
-    <header class="text-center py-3">
-      <h1 class="text-2xl font-semibold text-gray-900">
-        Ticket Scanner
-      </h1>
-      <p class="text-gray-500 text-sm">
-        Scan and validate event tickets
-      </p>
-
-
-    </header>
-    <div class="flex justify-end">
-      <button class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
-              (click)="logout()">
-        Logout
-      </button>
-    </div>
-
-
-    <!-- RESULT -->
-    <div *ngIf="result"
-         class="rounded-xl p-4 text-center font-semibold border transition-all"
-         [ngClass]="{
-           'bg-green-50 text-green-700 border-green-300': result==='VALID',
-           'bg-red-50 text-red-700 border-red-300': result==='INVALID',
-           'bg-yellow-50 text-yellow-700 border-yellow-300': result==='REVALIDATED'
-         }">
-      <div class="text-lg tracking-wide">
-        {{ result }}
+  <!-- HEADER -->
+  <header class="scanner-header">
+    <div class="scanner-brand">
+      <div class="scanner-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
       </div>
-      <div class="text-sm font-normal mt-1">
-        {{ message }}
+      <div>
+        <h1 class="scanner-title">Ticket Scanner</h1>
+        <p class="scanner-subtitle">Scan &amp; validate event tickets</p>
+      </div>
+    </div>
+    <button class="scanner-logout" (click)="logout()">Logout</button>
+  </header>
+
+  <div class="scanner-body">
+
+    <!-- RESULT BANNER -->
+    <div *ngIf="result" class="result-banner animate-pop"
+         [ngClass]="{
+           'result-valid': result==='VALID',
+           'result-invalid': result==='INVALID',
+           'result-revalidated': result==='REVALIDATED'
+         }">
+      <div class="result-icon">
+        <svg *ngIf="result==='VALID'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg *ngIf="result==='INVALID'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg *ngIf="result==='REVALIDATED'" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </div>
+      <div>
+        <div class="result-status">{{ result }}</div>
+        <div class="result-message">{{ message }}</div>
       </div>
     </div>
 
     <!-- SCAN BUTTON -->
-    <button class="w-full py-4 rounded-xl text-lg font-medium
-             bg-blue-600 text-white
-             hover:bg-blue-700
-             active:scale-[0.98]
-             transition
-             disabled:opacity-50"
+    <button class="scan-btn"
             [disabled]="loading"
             (click)="openScanner()">
-      Scan QR Code
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+      </svg>
+      {{ loading ? 'Scanning…' : 'Scan QR Code' }}
     </button>
 
     <!-- MANUAL INPUT -->
-    <div class="flex gap-2">
-      <input class="flex-1 rounded-xl px-4 py-3
-               border border-gray-300
-               text-gray-900 text-base
-               focus:outline-none focus:ring-2 focus:ring-blue-500"
-             placeholder="Enter ticket code"
+    <div class="manual-input">
+      <input class="manual-field"
+             placeholder="Or enter ticket code manually…"
              [(ngModel)]="code"
              (keyup.enter)="validate()" />
-
-      <button class="px-5 py-3 rounded-xl
-               bg-gray-800 text-white
-               hover:bg-gray-900
-               active:scale-[0.98]
-               transition"
-              [disabled]="loading"
-              (click)="validate()">
+      <button class="validate-btn" [disabled]="loading" (click)="validate()">
         Validate
       </button>
     </div>
 
     <!-- HISTORY -->
-    <div>
-      <h3 class="font-medium text-gray-800 mb-2">
-        Recent Scans
-      </h3>
+    <div class="history-section">
+      <h3 class="history-title">Recent Scans</h3>
 
-      <div *ngIf="!scanHistory.length"
-           class="text-gray-400 text-sm text-center py-2">
-        No scans yet
+      <div *ngIf="!scanHistory.length" class="history-empty">
+        No scans yet – start scanning tickets
       </div>
 
-      <ul class="space-y-2">
-        <li *ngFor="let h of scanHistory"
-            class="flex justify-between items-center
-                   bg-white border border-gray-200
-                   px-3 py-2 rounded-lg">
-          <span class="text-sm font-semibold"
-                [ngClass]="{
-                  'text-green-600': h.status==='VALID',
-                  'text-red-600': h.status==='INVALID',
-                  'text-yellow-600': h.status==='REVALIDATED'
-                }">
-            {{ h.status }}
-          </span>
-
-          <span class="text-xs text-gray-400">
-            {{ h.time | date:'shortTime' }}
-          </span>
+      <ul class="history-list">
+        <li *ngFor="let h of scanHistory" class="history-item">
+          <div class="history-left">
+            <span class="history-badge"
+                  [ngClass]="{
+                    'badge-valid': h.status==='VALID',
+                    'badge-invalid': h.status==='INVALID',
+                    'badge-revalidated': h.status==='REVALIDATED'
+                  }">
+              {{ h.status }}
+            </span>
+            <span class="history-code">{{ h.code }}</span>
+          </div>
+          <span class="history-time">{{ h.time | date:'shortTime' }}</span>
         </li>
       </ul>
     </div>

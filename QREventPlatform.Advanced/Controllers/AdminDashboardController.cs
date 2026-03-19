@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QREventPlatform.Advanced.Data;
@@ -30,33 +30,11 @@ public class AdminDashboardController : ControllerBase
 
         var data = db.QuerySingle("""
             SELECT
-                (SELECT COUNT(*) 
-                 FROM Events 
-                 WHERE CreatedByAdminId = @AdminId 
-                   AND IsActive = 1) AS Events,
-
-                (SELECT COUNT(*) 
-                 FROM Tickets t
-                 INNER JOIN Events e ON e.Id = t.EventId
-                 WHERE e.CreatedByAdminId = @AdminId
-                   AND e.IsActive = 1
-                   AND t.IsActive = 1) AS Tickets,
-
-                (SELECT COUNT(*) 
-                 FROM Tickets t
-                 INNER JOIN Events e ON e.Id = t.EventId
-                 WHERE e.CreatedByAdminId = @AdminId
-                   AND e.IsActive = 1
-                   AND t.IsActive = 1
-                   AND t.IsUsed = 1) AS UsedTickets,
-
-                (SELECT COUNT(*) 
-                 FROM TicketRevalidations r
-                 INNER JOIN Tickets t ON t.Id = r.TicketId
-                 INNER JOIN Events e ON e.Id = t.EventId
-                 WHERE e.CreatedByAdminId = @AdminId
-                   AND e.IsActive = 1
-                   AND t.IsActive = 1) AS Revalidations
+                (SELECT COUNT(*) FROM Events WHERE CreatedByAdminId = @AdminId AND IsActive = 1) AS events,
+                (SELECT COUNT(*) FROM Tickets t INNER JOIN Events e ON e.Id = t.EventId WHERE e.CreatedByAdminId = @AdminId AND e.IsActive = 1 AND t.IsActive = 1) AS tickets,
+                (SELECT COUNT(*) FROM Tickets t INNER JOIN Events e ON e.Id = t.EventId WHERE e.CreatedByAdminId = @AdminId AND e.IsActive = 1 AND t.IsActive = 1 AND t.IsUsed = 1) AS usedTickets,
+                (SELECT COUNT(*) FROM TicketRevalidations r INNER JOIN Tickets t ON t.Id = r.TicketId INNER JOIN Events e ON e.Id = t.EventId WHERE e.CreatedByAdminId = @AdminId AND e.IsActive = 1 AND t.IsActive = 1) AS revalidations,
+                (SELECT COUNT(*) FROM Users WHERE Role = 2 AND CreatedByAdminId = @AdminId AND IsActive = 1) AS workers
         """, new { AdminId = adminId });
 
         return Ok(data);
@@ -74,12 +52,12 @@ public class AdminDashboardController : ControllerBase
 
         var events = db.Query("""
             SELECT
-                e.Id,
-                e.Name,
-                e.EventDate,
-                e.Location,
-                COUNT(DISTINCT t.Id) AS Tickets,
-                COALESCE(SUM(CASE WHEN t.IsUsed = 1 THEN 1 ELSE 0 END), 0) AS UsedTickets
+                e.Id as id,
+                e.Name as name,
+                e.EventDate as eventDate,
+                e.Location as location,
+                COUNT(DISTINCT t.Id) AS tickets,
+                COALESCE(SUM(CASE WHEN t.IsUsed = 1 THEN 1 ELSE 0 END), 0) AS usedTickets
             FROM Events e
             LEFT JOIN Tickets t 
                    ON t.EventId = e.Id AND t.IsActive = 1

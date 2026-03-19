@@ -1,75 +1,71 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-  <div class="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8">
+<div class="register-wrapper">
+  <!-- Decorative orbs -->
+  <div class="reg-orb reg-orb-1"></div>
+  <div class="reg-orb reg-orb-2"></div>
+
+  <div class="register-card">
 
     <!-- HEADER -->
-    <div class="mb-6 text-center">
-      <h2 class="text-2xl font-bold text-gray-900">
-        {{ eventName || 'Event Registration' }}
-      </h2>
-      <p class="text-sm text-gray-500 mt-1">
-        Please fill the form to receive your ticket
-      </p>
+    <div class="reg-header">
+      <div class="reg-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <h2 class="reg-title">{{ eventName || 'Event Registration' }}</h2>
+      <p class="reg-subtitle">Fill the form below to receive your ticket</p>
     </div>
 
     <!-- LOADING -->
-    <div *ngIf="loading" class="text-center text-gray-400">
-      Loading registration form…
+    <div *ngIf="loading" class="reg-loading">
+      <div class="reg-spinner"></div>
+      <p>Loading registration form…</p>
     </div>
 
     <!-- FORM -->
-    <form *ngIf="!loading && !success"
-          (ngSubmit)="submit()"
-          class="space-y-4">
-
-      <div *ngFor="let f of fields" class="space-y-1">
-        <label class="block text-sm font-medium text-gray-700">
+    <form *ngIf="!loading && !success" (ngSubmit)="submit()" class="reg-form">
+      <div *ngFor="let f of fields" class="reg-field">
+        <label class="reg-label">
           {{ f.label }}
-          <span *ngIf="f.required" class="text-red-500">*</span>
+          <span *ngIf="f.required" class="reg-required">*</span>
         </label>
 
         <input *ngIf="f.type !== 'dropdown'"
-               class="w-full rounded-lg border px-3 py-2
-                 focus:ring-2 focus:ring-blue-500
-                 focus:border-blue-500 outline-none"
+               class="reg-input"
                [required]="f.required"
                [(ngModel)]="formData[f.key]"
                [name]="f.key"
-               [type]="f.type === 'email' ? 'email' : 'text'" />
+               [type]="f.type === 'email' ? 'email' : 'text'"
+               [placeholder]="'Enter ' + f.label" />
 
         <select *ngIf="f.type === 'dropdown'"
-                class="w-full rounded-lg border px-3 py-2
-                 focus:ring-2 focus:ring-blue-500
-                 focus:border-blue-500 outline-none"
+                class="reg-input"
                 [(ngModel)]="formData[f.key]"
                 [name]="f.key"
                 [required]="f.required">
-          <option value="" disabled selected>
-            Select {{ f.label }}
-          </option>
-          <option *ngFor="let o of f.options" [value]="o">
-            {{ o }}
-          </option>
+          <option value="" disabled selected>Select {{ f.label }}</option>
+          <option *ngFor="let o of f.options" [value]="o">{{ o }}</option>
         </select>
       </div>
 
-      <button type="submit"
-              class="w-full mt-4 py-2 rounded-lg
-               bg-blue-600 text-white font-semibold
-               hover:bg-blue-700 transition">
-        Register & Get Ticket
+      <button type="submit" class="reg-submit">
+        Register &amp; Get Ticket
       </button>
     </form>
 
     <!-- SUCCESS -->
-    <div *ngIf="success"
-         class="text-center space-y-2">
-      <div class="text-green-600 text-3xl">🎉</div>
-      <p class="text-lg font-semibold text-gray-900">
-        Registration successful!
-      </p>
-      <p class="text-sm text-gray-500">
-        Your ticket has been sent to your email.
-      </p>
+    <div *ngIf="success" class="reg-success">
+      <div class="success-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+      <h3 class="success-title">Registration Successful!</h3>
+      <p class="success-text">Your ticket has been sent to your email.</p>
     </div>
 
   </div>

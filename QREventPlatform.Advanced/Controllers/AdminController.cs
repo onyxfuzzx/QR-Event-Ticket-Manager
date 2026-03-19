@@ -1,4 +1,4 @@
-﻿using Dapper;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using QREventPlatform.Advanced.Data;
@@ -72,11 +72,9 @@ public class AdminController : ControllerBase
 
         var workers = db.Query(
             """
-    
-            SELECT Id,
-            Name, Email,
-            IsActive FROM Users WHERE Role = @Role AND CreatedByAdminId = @AdminId
-    
+            SELECT Id as id, Name as name, Email as email, IsActive as isActive 
+            FROM Users 
+            WHERE Role = @Role AND CreatedByAdminId = @AdminId
             """, new
           { Role = workerRole, AdminId = adminId });
 

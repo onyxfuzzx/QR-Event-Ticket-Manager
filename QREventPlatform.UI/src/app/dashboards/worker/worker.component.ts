@@ -13,7 +13,8 @@ type ScanResult = 'VALID' | 'INVALID' | 'REVALIDATED';
   standalone: true,
   selector: 'app-worker',
   imports: [CommonModule, FormsModule, WorkerScannerComponent],
-  templateUrl: './worker.component.html'
+  templateUrl: './worker.component.html',
+  styleUrls: ['./worker.component.scss']
 })
 export class WorkerComponent {
 
