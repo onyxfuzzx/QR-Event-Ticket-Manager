@@ -147,4 +147,19 @@ export class AdminService {
   restoreTicket(ticketId: string) {
     return this.http.post(`${this.ticketUrl}/${ticketId}/restore`, {});
   }
+
+  // =========================
+  // EMAIL TEMPLATES
+  // =========================
+  getEventEmailTemplate(eventId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/events/${eventId}/template`);
+  }
+
+  saveEventEmailTemplate(eventId: string, payload: { layoutJson: string, htmlContent: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/events/${eventId}/template`, payload);
+  }
+
+  testEmailTemplate(eventId: string, payload: { toEmail: string, htmlContent: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/events/${eventId}/template/test`, payload);
+  }
 }

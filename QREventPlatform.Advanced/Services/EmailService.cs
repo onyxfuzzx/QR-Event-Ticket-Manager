@@ -95,28 +95,55 @@ public class EmailService
 </div>
             "
         };
+        await SendInternalAsync(message, ct);
+    }
 
-        // ============================
-        // SEND EMAIL
-        // ============================
+    public async Task SendCustomTicketAsync(
+        string toEmail,
+        string eventName,
+        string ticketCode,
+        string qrUrl,
+        string customHtml,
+        DateTime? eventDate = null,
+        string? location = null,
+        CancellationToken ct = default
+    )
+    {
+        if (string.IsNullOrWhiteSpace(toEmail)) throw new ArgumentException("Email is required");
+        if (!MailboxAddress.TryParse(toEmail, out var toMailbox)) throw new ArgumentException("Invalid email");
+
+        var user = _config["Email:SmtpUser"];
+        
+        // Replace placeholders if not already handled
+        var finalHtml = customHtml
+            .Replace("{{event_name}}", WebUtility.HtmlEncode(eventName))
+            .Replace("{{ticket_id}}", WebUtility.HtmlEncode(ticketCode))
+            .Replace("{{qr_code}}", WebUtility.HtmlEncode(qrUrl))
+            .Replace("{{event_date}}", eventDate?.ToString("f") ?? "TBA")
+            .Replace("{{location}}", WebUtility.HtmlEncode(location ?? "TBA"));
+
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("QR Event Platform", user));
+        message.To.Add(toMailbox);
+        message.Subject = $"🎫 Ticket for {eventName}";
+        message.Body = new TextPart("html") { Text = finalHtml };
+
+        await SendInternalAsync(message, ct);
+    }
+
+    private async Task SendInternalAsync(MimeMessage message, CancellationToken ct)
+    {
+        var host = _config["Email:SmtpHost"];
+        var port = int.Parse(_config["Email:SmtpPort"] ?? "587");
+        var user = _config["Email:SmtpUser"];
+        var pass = _config["Email:SmtpPass"];
+
         using var smtp = new SmtpClient();
+        if (_config.GetValue<bool>("Email:DisableCertCheck")) smtp.CheckCertificateRevocation = false;
 
-        // ⚠️ Only disable certificate checks if explicitly configured (dev only)
-        if (_config.GetValue<bool>("Email:DisableCertCheck"))
-        {
-            smtp.CheckCertificateRevocation = false;
-        }
-
-        await smtp.ConnectAsync(
-            host,
-            port,
-            SecureSocketOptions.StartTls,
-            ct
-        );
-
+        await smtp.ConnectAsync(host, port, SecureSocketOptions.StartTls, ct);
         await smtp.AuthenticateAsync(user, pass, ct);
         await smtp.SendAsync(message, ct);
         await smtp.DisconnectAsync(true, ct);
     }
-
 }

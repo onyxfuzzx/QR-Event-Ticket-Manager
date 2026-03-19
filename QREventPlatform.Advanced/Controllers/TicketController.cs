@@ -46,7 +46,7 @@ public class TicketController : ControllerBase
 
         var eventInfo = db.QuerySingleOrDefault<EventInfoDto>(
             """
-            SELECT Name
+            SELECT Name, EventDate, Location
             FROM Events
             WHERE Id = @Id
               AND CreatedByAdminId = @AdminId
@@ -100,12 +100,31 @@ public class TicketController : ControllerBase
 
         try
         {
-            await email.SendTicketAsync(
-                req.Email.Trim(),
-                eventInfo.Name,
-                code,
-                qrUrl
-            );
+            var customTemplate = db.QuerySingleOrDefault<string>(
+                "SELECT HtmlContent FROM EmailTemplates WHERE EventId = @EventId",
+                new { EventId = eventId }, tx);
+
+            if (!string.IsNullOrEmpty(customTemplate))
+            {
+                await email.SendCustomTicketAsync(
+                    req.Email.Trim(),
+                    eventInfo.Name,
+                    code,
+                    qrUrl,
+                    customHtml: customTemplate,
+                    eventDate: eventInfo.EventDate,
+                    location: eventInfo.Location
+                );
+            }
+            else
+            {
+                await email.SendTicketAsync(
+                    req.Email.Trim(),
+                    eventInfo.Name,
+                    code,
+                    qrUrl
+                );
+            }
 
             tx.Commit();
         }

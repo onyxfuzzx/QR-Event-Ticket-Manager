@@ -1,0 +1,107 @@
+<div class="template-builder">
+  <div class="builder-panels">
+    
+    <!-- LEFT: EDITOR -->
+    <div class="editor-panel">
+      <div class="panel-header">
+        <h3 class="panel-title">Structure & Design</h3>
+        <p class="panel-subtitle">Drag blocks or use controls to design custom email</p>
+      </div>
+
+      <div class="blocks-container">
+        <div *ngFor="let block of blocks; let i = index" class="block-card" [class.active]="true">
+          <div class="block-header">
+            <span class="block-type">{{ block.type | uppercase }}</span>
+            <div class="block-actions">
+              <button (click)="moveBlock(i, -1)" [disabled]="i === 0">↑</button>
+              <button (click)="moveBlock(i, 1)" [disabled]="i === blocks.length - 1">↓</button>
+              <button class="text-red-500" (click)="removeBlock(i)">×</button>
+            </div>
+          </div>
+
+          <div class="block-content">
+            <!-- HEADER SETTINGS -->
+            <div *ngIf="block.type === 'header'" class="space-y-3">
+              <input type="text" [(ngModel)]="block.content.title" class="input dark" placeholder="Title">
+              <div class="flex gap-2">
+                <div class="flex-1">
+                  <label class="label">BG Color</label>
+                  <input type="color" [(ngModel)]="block.content.bgColor" class="color-input">
+                </div>
+                <div class="flex-1">
+                  <label class="label">Text Color</label>
+                  <input type="color" [(ngModel)]="block.content.textColor" class="color-input">
+                </div>
+              </div>
+            </div>
+
+            <!-- DETAILS SETTINGS -->
+            <div *ngIf="block.type === 'details'" class="flex gap-4">
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="block.content.showDate"> Show Date
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" [(ngModel)]="block.content.showLocation"> Show Location
+              </label>
+            </div>
+
+            <!-- TEXT SETTINGS -->
+            <div *ngIf="block.type === 'text'">
+              <textarea [(ngModel)]="block.content.body" class="input dark h-24" placeholder="Body text..."></textarea>
+            </div>
+
+            <!-- TICKET SETTINGS -->
+            <div *ngIf="block.type === 'ticket'" class="space-y-3">
+              <select [(ngModel)]="block.content.mode" class="input dark">
+                <option value="button">Button ("View QR")</option>
+                <option value="image">Inline Image (QR Code)</option>
+              </select>
+              <div *ngIf="block.type === 'ticket' && block.content.mode === 'button'" class="flex gap-2">
+                <input type="text" [(ngModel)]="block.content.btnText" class="input dark flex-1">
+                <input type="color" [(ngModel)]="block.content.btnColor" class="color-input w-12">
+              </div>
+            </div>
+
+            <!-- FOOTER SETTINGS -->
+            <div *ngIf="block.type === 'footer'">
+              <input type="text" [(ngModel)]="block.content.text" class="input dark" placeholder="Footer text">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="add-blocks">
+        <button (click)="addBlock('header')">+ Header</button>
+        <button (click)="addBlock('details')">+ Details</button>
+        <button (click)="addBlock('text')">+ Text</button>
+        <button (click)="addBlock('ticket')">+ Ticket</button>
+        <button (click)="addBlock('footer')">+ Footer</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: PREVIEW -->
+    <div class="preview-panel">
+      <div class="panel-header flex justify-between items-center">
+        <div>
+          <h3 class="panel-title">Live Preview</h3>
+          <p class="panel-subtitle">Responsive email preview</p>
+        </div>
+        <div class="flex gap-2">
+          <input type="email" [(ngModel)]="testEmail" placeholder="Test Email" class="input dark w-48 text-sm">
+          <button (click)="sendTest()" class="btn btn-secondary text-sm" [disabled]="testing">{{ testing ? '...' : 'Send Test' }}</button>
+        </div>
+      </div>
+
+      <div class="preview-frame">
+        <div [innerHTML]="renderHtml() | safeHtml" class="preview-inner"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="builder-footer">
+    <button (click)="saveTemplate()" class="btn btn-primary" [disabled]="saving">
+      {{ saving ? 'Saving...' : 'Save Template' }}
+    </button>
+  </div>
+</div>

@@ -6,6 +6,7 @@ import { AdminEventService } from '../../core/services/admin-event.service';
 import { Router } from '@angular/router';
 import { AdminSignalrService, AdminLiveEvent } from '../../core/signalr/admin-signalr.service';
 import { EventFormBuilderComponent } from './components/event-form-builder/event-form-builder.component';
+import { EmailTemplateBuilderComponent } from './components/email-template-builder/email-template-builder.component';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -21,7 +22,7 @@ type LiveLog = {
 @Component({
   standalone: true,
   selector: 'app-admin',
-  imports: [CommonModule, FormsModule, EventFormBuilderComponent],
+  imports: [CommonModule, FormsModule, EventFormBuilderComponent, EmailTemplateBuilderComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
 })
@@ -47,7 +48,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     | 'assign'
     | 'deleted'
     | 'scans'
-    | 'formaudit' = 'events';
+    | 'formaudit'
+    | 'email' = 'events';
   liveLogs: { message: string; time: Date }[] = [];
   scanLogs: any[] = [];          // persistent logs
   liveFeed: AdminLiveEvent[] = []; // live events (top bar / toast)
@@ -94,6 +96,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     | 'deleted'
     | 'scans'
     | 'formaudit'
+    | 'email'
   ) {
     this.activeTab = tab;
 
