@@ -38,27 +38,9 @@ Designing branded communication without external tools:
 *   **Branded Tickets**: Automatically embed unique QR codes and event details into the ticket block.
 *   **Test Dispatch**: Built-in SMTP testing to verify email appearance in actual mail clients.
 
-### 4. High-Performance Scanner Portal
-Optimized for the front lines, the Worker portal transforms any mobile device into a professional scanner:
-*   **Hardware Integration**: Utilizes the device camera for fast QR decoding.
-*   **Feedback System**: Integrated sounds for success/error and haptic vibration for "eyes-free" validation.
-*   **Manual Override**: Secure fallback for damaged QR codes or camera issues.
-*   **Live Synchronization**: Scans are immediately pushed to the central dashboard for real-time tracking.
-
 ---
 
-## Security & Auth Flow
-
-### Password Recovery & Maintenance
-The platform implements a secure, token-driven recovery flow:
-1.  **Request**: User enters email on the portal.
-2.  **Generation**: A cryptographically secure, time-limited token is generated and stored.
-3.  **Delivery**: A professional reset email is sent via the platform's SMTP service.
-4.  **Exchange**: User validates the token and sets a new password, automatically invalidating the token.
-
----
-
-## Technology Stack
+## Technical Stack & Indicators
 
 ![.NET 8](https://img.shields.io/badge/.NET_8-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![Angular](https://img.shields.io/badge/Angular_17-DD0031?style=for-the-badge&logo=angular&logoColor=white)
@@ -68,57 +50,139 @@ The platform implements a secure, token-driven recovery flow:
 
 ---
 
-## Project Structure
+## Full Tutorial: System Implementation
+
+This guide provides a comprehensive path to deploying the QR Event Platform from source.
+
+### Phase 1: Environment Preparation
+
+Ensure the following system dependencies are installed and accessible:
+- **Programming Language**: .NET 8.0 SDK (verify with `dotnet --version`)
+- **Runtime Environment**: Node.js 18.x or later (verify with `node -v`)
+- **Database Engine**: Microsoft SQL Server (2019+ or LocalDB)
+- **Tooling**: Angular CLI (optional but recommended: `npm install -g @angular/cli`)
+
+### Phase 2: Database Layer Initialization
+
+The platform requires a pre-provisioned schema. Follow these steps:
+
+1.  Open **SQL Server Management Studio (SSMS)** or your preferred SQL tool.
+2.  Connect to your server instance.
+3.  Navigate to the repository folder: `QREventPlatform.Advanced/SQL/`.
+4.  Open and execute the **`createDb.sql`** script.
+    - This script performs three critical actions:
+        - Creates all core tables (Users, Events, Tickets, etc.).
+        - Initializes the `PasswordResetTokens` table for security recovery.
+        - Seeds the initial **SuperAdmin** user into the database.
+
+---
+
+### Phase 3: Backend Configuration
+
+1.  Navigate to the backend project directory:
+    ```bash
+    cd QREventPlatform.Advanced
+    ```
+
+2.  Locate `appsettings.json` (Important: This file is excluded from Git by default for security). If it does not exist, create it following this template:
+    ```json
+    {
+      "ConnectionStrings": {
+        "DefaultConnection": "Server=YOUR_SERVER_NAME;Database=prism;Trusted_Connection=True;TrustServerCertificate=True"
+      },
+      "Jwt": {
+        "Key": "YOUR_SUPER_SECRET_KEY_MIN_32_CHARS",
+        "Issuer": "QREventPlatform",
+        "Audience": "QREventPlatformUser"
+      },
+      "Email": {
+        "SmtpHost": "smtp.gmail.com",
+        "SmtpPort": 587,
+        "SmtpUser": "your-email@gmail.com",
+        "SmtpPass": "your-app-password"
+      },
+      "AllowedHosts": "*"
+    }
+    ```
+
+3.  **Authentication Security**: Ensure the `Jwt:Key` is a robust, unique string.
+4.  **Email Integration**: Configure a valid SMTP provider (like Gmail App Passwords) to enable the "Forgot Password" feature.
+5.  Restore dependencies and launch:
+    ```bash
+    dotnet restore
+    dotnet run
+    ```
+
+---
+
+### Phase 4: Frontend Implementation
+
+1.  Navigate to the UI project directory:
+    ```bash
+    cd QREventPlatform.UI
+    ```
+
+2.  **Dependency Installation**:
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Sync**: Ensure `src/environments/environment.ts` correctly points to your backend URL (usually `http://localhost:5036/api`).
+
+4.  **Launch the Application**:
+    ```bash
+    npm start
+    ```
+    - The portal will be accessible at **`http://localhost:4200`**.
+
+---
+
+### Phase 5: Initial Access & Roles
+
+Identify the system role hierarchy to begin development:
+
+- **SuperAdmin**: Full system control.
+    - Default Email: `superadmin@qrevent.com`
+    - Default Password: `12345678`
+- **Admin**: Event-specific management. (Created by SuperAdmin)
+- **Worker**: Scanner-only access. (Created by Admins)
+
+---
+
+## Security & Maintenance Workflows
+
+### Authentication Recovery
+If a user loses access, the platform utilizes a secure, multi-stage recovery:
+1.  User enters email on the login page via the "Forgot Password" link.
+2.  The backend generates a cryptographically secure token via the `AuthService`.
+3.  An automated email is sent with a unique reset link pointing to the `/reset-password` frontend route.
+4.  Upon validation, the user securely updates their password in the `PasswordResetTokens` table.
+
+---
+
+## 🏗️ Project Structure Reference
 
 ```bash
 QR-Event-Ticket-Manager/
-├── QREventPlatform.Advanced/   # Backend Engine
-│   ├── Controllers/             # RESTful Resource Handlers
-│   ├── Services/                # Core Logic Pipelines (Auth, Email, QR)
-│   ├── Hubs/                    # SignalR Real-time Channels
-│   └── SQL/                     # Consolidated Migration Scripts
-└── QREventPlatform.UI/         # Frontend Interface
-    ├── src/app/auth/            # Login & Reset Workflows
-    ├── src/app/dashboards/      # High-fidelity Portals
-    └── src/app/core/            # Global State & API Services
+├── QREventPlatform.Advanced/   # Backend Engine (.NET 8)
+│   ├── Controllers/             # Auth, User, Event, Ticket API Endpoints
+│   ├── Services/                # EmailService, AuthService, TokenGenerator
+│   ├── Hubs/                    # LiveScanHub (Real-time events)
+│   └── SQL/                     # Unified Migration & Seed Scripts
+└── QREventPlatform.UI/         # Frontend Interface (Angular + Tailwind)
+    ├── src/app/auth/            # Login, Forgot & Reset Password pages
+    ├── src/app/dashboards/      # SuperAdmin, Admin, and Worker portals
+    └── src/app/core/            # Interceptors, Guards, and API clients
 ```
 
 ---
 
-## Deployment & Setup
+## Troubleshooting Guide
 
-### Requirements
-- .NET 8.0 SDK
-- Node.js 18+ & NPM
-- SQL Server (standard instance name)
-
-### 1. Database Initialization
-Execute the consolidated script in `QREventPlatform.Advanced/SQL/createDb.sql`. This initializes the `PasswordResetTokens` table and seeds the default administrator.
-
-### 2. Service Configuration
-Update `appsettings.json` with your:
-- **ConnectionStrings**: Primary SQL Server URI.
-- **Email Settings**: SMTP Host, Port, and Credentials.
-- **JWT Key**: Secure signing key for tokens.
-
-### 3. Build & Run
-**Backend:**
-```bash
-cd QREventPlatform.Advanced
-dotnet run
-```
-**Frontend:**
-```bash
-cd QREventPlatform.UI
-npm install
-npm start
-```
-
----
-
-## Default Administrator Credentials
-- **Email**: `superadmin@qrevent.com`
-- **Password**: `12345678`
+- **CORS Errors**: Verify the `AllowedOrigins` in `Program.cs` matches the frontend URL.
+- **SQL Connection Failed**: Ensure SQL Server is running and the connection string in `appsettings.json` is accurate.
+- **Email Not Sending**: Verify SMTP credentials and ensure "Less Secure Apps" or "App Passwords" are enabled for your provider.
+- **SignalR Connection Issues**: Ensure the `Hubs` are correctly mapped in `Program.cs` and the frontend imports `@microsoft/signalr`.
 
 ---
 
