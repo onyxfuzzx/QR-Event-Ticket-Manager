@@ -91,6 +91,7 @@ CREATE TABLE dbo.Tickets (
         DEFAULT (DATEADD(MINUTE, 330, GETUTCDATE())),
     IsActive BIT NOT NULL
         CONSTRAINT DF_Tickets_IsActive DEFAULT (1),
+    QrUrl NVARCHAR(500) NULL,
     CONSTRAINT UQ_Tickets_Code UNIQUE (Code)
 );
 GO
@@ -133,6 +134,47 @@ ON dbo.TicketScanLogs (ScannedAt DESC);
 GO
 
 /* ===============================
+   EVENT FORMS
+================================ */
+CREATE TABLE dbo.EventForms (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    EventId UNIQUEIDENTIFIER NOT NULL,
+    [Schema] NVARCHAR(MAX) NOT NULL,
+    CreatedAt DATETIME2(7) NOT NULL DEFAULT (GETUTCDATE()),
+    UpdatedAt DATETIME2(7) NULL,
+    CONSTRAINT FK_EventForms_Events FOREIGN KEY (EventId) REFERENCES dbo.Events(Id)
+);
+GO
+
+/* ===============================
+   EVENT FORM SUBMISSIONS
+================================ */
+CREATE TABLE dbo.EventFormSubmissions (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    EventId UNIQUEIDENTIFIER NOT NULL,
+    TicketId UNIQUEIDENTIFIER NOT NULL,
+    Data NVARCHAR(MAX) NOT NULL,
+    CreatedAt DATETIME2(7) NOT NULL DEFAULT (GETUTCDATE()),
+    CONSTRAINT FK_Submissions_Events FOREIGN KEY (EventId) REFERENCES dbo.Events(Id),
+    CONSTRAINT FK_Submissions_Tickets FOREIGN KEY (TicketId) REFERENCES dbo.Tickets(Id)
+);
+GO
+
+/* ===============================
+   EMAIL TEMPLATES
+================================ */
+CREATE TABLE dbo.EmailTemplates (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    EventId UNIQUEIDENTIFIER NOT NULL,
+    LayoutJson NVARCHAR(MAX) NOT NULL,
+    HtmlContent NVARCHAR(MAX) NOT NULL,
+    CreatedAt DATETIME2(7) NOT NULL DEFAULT (GETUTCDATE()),
+    UpdatedAt DATETIME2(7) NOT NULL DEFAULT (GETUTCDATE()),
+    CONSTRAINT FK_EmailTemplates_Events FOREIGN KEY (EventId) REFERENCES dbo.Events(Id)
+);
+GO
+
+/* ===============================
    NOTIFICATIONS
 ================================ */
 CREATE TABLE dbo.Notifications (
@@ -144,5 +186,21 @@ CREATE TABLE dbo.Notifications (
     CreatedAt DATETIME2(7) NOT NULL
         CONSTRAINT DF_Notifications_CreatedAt
         DEFAULT (DATEADD(MINUTE, 330, GETUTCDATE()))
+);
+GO
+
+/* ===============================
+   INITIAL DATA (SEED)
+================================ */
+INSERT INTO dbo.Users (Id, Name, Email, PasswordHash, Role, IsActive, CreatedAt, CreatedByAdminId)
+VALUES (
+    '542CEA27-B3CE-4B47-A2E6-CED3CBCB39ED', 
+    'SuperAdmin', 
+    'admin@gmail.com', 
+    '$2a$12$kxDRqPwsC33dt0CWKULuGeXveV3hdghGulqUYMO7zYZsxuctrf2l.', 
+    0, 
+    1, 
+    '2026-01-06 11:23:03.0000000', 
+    NULL
 );
 GO
