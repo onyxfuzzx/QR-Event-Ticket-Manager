@@ -1,6 +1,6 @@
 <div class="template-builder">
   <div class="builder-panels">
-    
+
     <!-- LEFT: EDITOR -->
     <div class="editor-panel">
       <div class="panel-header">
@@ -88,7 +88,8 @@
         </div>
         <div class="flex gap-2">
           <input type="email" [(ngModel)]="testEmail" placeholder="Test Email" class="input dark w-48 text-sm">
-          <button (click)="sendTest()" class="btn btn-secondary text-sm" [disabled]="testing">{{ testing ? '...' : 'Send Test' }}</button>
+          <button (click)="sendTest()" class="btn btn-primary" [disabled]="testing">{{ testing ? '...' : 'Send Test'
+            }}</button>
         </div>
       </div>
 
