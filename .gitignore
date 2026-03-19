@@ -57,3 +57,6 @@ pnpm-debug.log*
 **/.eslintcache
 **/.stylelintcache
 **/.sass-cache/
+
+
+appsettings.json
