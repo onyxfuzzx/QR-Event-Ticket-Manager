@@ -112,7 +112,7 @@ export class AdminService {
     return this.http.delete(`${this.baseUrl}/event-workers/${assignmentId}`);
   }
 
-  /** 🔁 RESTORE ASSIGNMENT */
+  /** RESTORE ASSIGNMENT */
   restoreAssignment(assignmentId: string) {
     return this.http.post(
       `${this.baseUrl}/event-workers/${assignmentId}/restore`,
@@ -121,7 +121,7 @@ export class AdminService {
   }
 
   // =========================
-  // EVENT → WORKERS
+  // EVENT -> WORKERS
   // =========================
   getEventWorkers(eventId: string): Observable<any[]> {
     return this.http.get<any[]>(
@@ -143,7 +143,7 @@ export class AdminService {
     return this.http.delete(`${this.ticketUrl}/${ticketId}`);
   }
 
-  /** 🔁 RESTORE TICKET */
+  /** RESTORE TICKET */
   restoreTicket(ticketId: string) {
     return this.http.post(`${this.ticketUrl}/${ticketId}/restore`, {});
   }

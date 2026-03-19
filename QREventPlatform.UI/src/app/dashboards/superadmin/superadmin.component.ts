@@ -4,12 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { SuperAdminService } from '../../core/services/superadmin.service';
 import { Router } from '@angular/router';
 import { AdminSignalrService, AdminLiveEvent } from '../../core/signalr/admin-signalr.service';
+import { ChangePasswordComponent } from '../components/change-password/change-password.component';
 
 
 @Component({
   standalone: true,
   selector: 'app-superadmin',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ChangePasswordComponent],
   templateUrl: './superadmin.component.html',
   styleUrls: ['./superadmin.component.scss']
 })
@@ -27,7 +28,7 @@ export class SuperAdminComponent implements OnInit {
   deletedAdmins: any[] = [];
   activity: any[] = [];
 
-  activeTab: 'admins' | 'deleted' | 'activity' = 'admins';
+  activeTab: 'admins' | 'deleted' | 'activity' | 'settings' = 'admins';
 
   newAdmin = {
     name: '',
@@ -47,7 +48,7 @@ export class SuperAdminComponent implements OnInit {
   /* =========================
      TAB HANDLING
      ========================= */
-  switchTab(tab: 'admins' | 'deleted' | 'activity') {
+  switchTab(tab: 'admins' | 'deleted' | 'activity' | 'settings') {
     this.activeTab = tab;
 
     if (tab === 'admins') this.loadAdmins();
@@ -88,17 +89,17 @@ export class SuperAdminComponent implements OnInit {
     // Optional confirmation
     if (!confirm('Logout from superadmin?')) return;
 
-    // 🔥 Clear auth data
+    // Clear auth data
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('userId');
 
-    // 🔌 Disconnect SignalR if present
+    // Disconnect SignalR if present
     try {
       this.signalr?.disconnect?.();
     } catch { }
 
-    // 🚪 Redirect to login
+    // Redirect to login
     this.router.navigate(['/login']);
   }
 

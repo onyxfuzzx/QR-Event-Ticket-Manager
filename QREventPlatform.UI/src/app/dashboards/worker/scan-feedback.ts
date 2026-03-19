@@ -35,18 +35,18 @@ export function unlockAudio() {
  */
 export function playScanFeedback(success: boolean) {
   try {
-    // 📳 VIBRATION (mobile only)
+    // VIBRATION (mobile only)
     if (navigator.vibrate) {
       navigator.vibrate(success ? 200 : [200, 100, 200]);
     }
 
-    // 🔊 SOUND
+    // SOUND
     const audio = success ? successAudio : errorAudio;
 
     if (audio) {
       audio.currentTime = 0;
       audio.play().catch(() => {
-        // autoplay blocked → ignore safely
+        // autoplay blocked -> ignore safely
       });
     }
 

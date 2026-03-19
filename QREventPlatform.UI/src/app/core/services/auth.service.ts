@@ -35,4 +35,19 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('token');
   }
+
+  /** CHANGE PASSWORD (FOR LOGGED IN USERS) */
+  changePassword(data: any) {
+    return this.http.post(`${this.api}/change-password`, data);
+  }
+
+  /** FORGOT PASSWORD (REQUEST LINK) */
+  forgotPassword(email: string) {
+    return this.http.post(`${this.api}/forgot-password`, { email });
+  }
+
+  /** RESET PASSWORD (USING TOKEN FROM EMAIL) */
+  resetPassword(data: any) {
+    return this.http.post(`${this.api}/reset-password`, data);
+  }
 }

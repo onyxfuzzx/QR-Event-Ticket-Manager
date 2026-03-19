@@ -1,8 +1,10 @@
-CREATE DATABASE QREventDb;
-GO
-
-USE QREventDb;
-GO
+/*
+   To create a new DB, uncomment lines below:
+   CREATE DATABASE QREventDb;
+   GO
+   USE QREventDb;
+   GO
+*/
 
 /* ===============================
    AUDIT LOGS
@@ -190,13 +192,28 @@ CREATE TABLE dbo.Notifications (
 GO
 
 /* ===============================
+   PASSWORD RESET TOKENS
+================================ */
+CREATE TABLE dbo.PasswordResetTokens (
+    Id UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    UserId UNIQUEIDENTIFIER NOT NULL,
+    Token NVARCHAR(255) NOT NULL,
+    ExpiresAt DATETIME2(7) NOT NULL,
+    IsUsed BIT NOT NULL DEFAULT (0),
+    CreatedAt DATETIME2(7) NOT NULL DEFAULT (GETUTCDATE()),
+    CONSTRAINT FK_ResetTokens_Users FOREIGN KEY (UserId) REFERENCES dbo.Users(Id)
+);
+CREATE INDEX IX_PasswordResetTokens_Token ON dbo.PasswordResetTokens (Token);
+GO
+
+/* ===============================
    INITIAL DATA (SEED)
 ================================ */
 INSERT INTO dbo.Users (Id, Name, Email, PasswordHash, Role, IsActive, CreatedAt, CreatedByAdminId)
 VALUES (
     '542CEA27-B3CE-4B47-A2E6-CED3CBCB39ED', 
     'SuperAdmin', 
-    'admin@gmail.com', 
+    'superadmin@qrevent.com', 
     '$2a$12$kxDRqPwsC33dt0CWKULuGeXveV3hdghGulqUYMO7zYZsxuctrf2l.', 
     0, 
     1, 

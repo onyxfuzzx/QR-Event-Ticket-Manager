@@ -52,6 +52,7 @@
       <button class="tab" [class.active]="activeTab==='scans'" (click)="switchTab('scans')">Scans</button>
       <button class="tab" [class.active]="activeTab==='formaudit'" (click)="switchTab('formaudit')">Form Audit</button>
       <button class="tab" [class.active]="activeTab==='email'" (click)="switchTab('email')">Email Template</button>
+      <button class="tab" [class.active]="activeTab==='settings'" (click)="switchTab('settings')">Settings</button>
     </div>
 
 
@@ -201,7 +202,7 @@
           </div>
 
           <div *ngIf="loadingEventTickets" class="empty-state">
-            <p class="empty-state-text">Loading tickets…</p>
+            <p class="empty-state-text">Loading tickets...</p>
           </div>
         </div>
       </div>
@@ -489,6 +490,11 @@
         </div>
         <p class="empty-state-text">Select an event above to start designing</p>
       </div>
+    </div>
+
+    <!-- ============ SETTINGS ============ -->
+    <div *ngIf="activeTab==='settings'" class="animate-fade-in">
+      <app-change-password></app-change-password>
     </div>
 
   </div>

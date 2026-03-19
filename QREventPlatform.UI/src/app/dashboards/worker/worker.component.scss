@@ -44,6 +44,52 @@ input { font-size: 16px; }
 }
 .scanner-logout:hover { background: #fef2f2; border-color: #fecaca; }
 
+.tabs-nav {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 16px;
+  position: sticky;
+  top: 69px;
+  z-index: 30;
+
+  .tab-btn {
+    flex: 1;
+    padding: 14px 0;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+
+    svg { opacity: 0.6; }
+
+    &.active {
+      color: #4f46e5;
+      svg { opacity: 1; }
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20%;
+        right: 20%;
+        height: 3px;
+        background: #4f46e5;
+        border-radius: 3px 3px 0 0;
+      }
+    }
+  }
+}
+
+
 .scanner-body {
   max-width: 480px;
   margin: 0 auto;

@@ -42,6 +42,7 @@
       <button class="sa-tab" [class.active]="activeTab==='admins'" (click)="switchTab('admins')">Admins</button>
       <button class="sa-tab" [class.active]="activeTab==='deleted'" (click)="switchTab('deleted')">Deleted</button>
       <button class="sa-tab" [class.active]="activeTab==='activity'" (click)="switchTab('activity')">Activity</button>
+      <button class="sa-tab" [class.active]="activeTab==='settings'" (click)="switchTab('settings')">Settings</button>
     </nav>
 
 
@@ -59,7 +60,7 @@
             <input type="password" placeholder="Password" [(ngModel)]="newAdmin.password" />
           </div>
           <button class="sa-btn-create" [disabled]="loading" (click)="createAdmin()">
-            {{ loading ? 'Creating…' : 'Create Admin' }}
+            {{ loading ? 'Creating...' : 'Create Admin' }}
           </button>
         </div>
       </div>
@@ -147,6 +148,11 @@
         </tbody>
       </table>
       <p *ngIf="!activity.length" class="empty-state">No activity recorded</p>
+    </section>
+
+    <!-- ============ SETTINGS ============ -->
+    <section *ngIf="activeTab==='settings'" class="animate-fade-in">
+      <app-change-password></app-change-password>
     </section>
 
   </div>

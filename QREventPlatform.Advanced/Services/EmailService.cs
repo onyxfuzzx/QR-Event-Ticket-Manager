@@ -131,6 +131,43 @@ public class EmailService
         await SendInternalAsync(message, ct);
     }
 
+    public async Task SendPasswordResetAsync(string toEmail, string resetLink, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(toEmail)) throw new ArgumentException("Email is required");
+        if (!MailboxAddress.TryParse(toEmail, out var toMailbox)) throw new ArgumentException("Invalid email");
+
+        var user = _config["Email:SmtpUser"];
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress("QR Event Platform", user));
+        message.To.Add(toMailbox);
+        message.Subject = "🔐 Reset your password";
+
+        message.Body = new TextPart("html")
+        {
+            Text = $@"
+<div style=""font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; padding: 40px 20px; color: #1e293b;"">
+    <div style=""max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"">
+        <div style=""background-color: #0f172a; padding: 30px; text-align: center;"">
+            <h2 style=""color: #ffffff; margin: 0; font-size: 24px;"">🔑 Password Reset</h2>
+        </div>
+        <div style=""padding: 30px;"">
+            <p style=""font-size: 16px; line-height: 1.6; margin-bottom: 24px;"">We received a request to reset your password. Click the button below to choose a new one. This link will expire in 30 minutes.</p>
+            
+            <div style=""text-align: center; margin-bottom: 30px;"">
+                <a href=""{resetLink}"" style=""display: inline-block; background-color: #2563eb; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);"">Reset Password</a>
+            </div>
+
+            <p style=""font-size: 14px; color: #64748b; margin: 0; text-align: center;"">If you didn't request this, you can safely ignore this email.</p>
+        </div>
+        <div style=""background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px; text-align: center;"">
+            <p style=""font-size: 12px; color: #94a3b8; margin: 0;"">© {DateTime.UtcNow.Year} QR Event Platform</p>
+        </div>
+    </div>
+</div>"
+        };
+        await SendInternalAsync(message, ct);
+    }
+
     private async Task SendInternalAsync(MimeMessage message, CancellationToken ct)
     {
         var host = _config["Email:SmtpHost"];

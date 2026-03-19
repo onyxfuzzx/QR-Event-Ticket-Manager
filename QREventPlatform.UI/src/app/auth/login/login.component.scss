@@ -1,5 +1,5 @@
 /* ===============================
-   LOGIN – PREMIUM DESIGN
+   LOGIN - PREMIUM DESIGN
 ================================ */
 
 .login-wrapper {
@@ -195,6 +195,25 @@
 .eye-toggle:hover {
   color: rgba(255, 255, 255, 0.7);
 }
+
+.forgot-link-wrapper {
+  text-align: right;
+  margin-top: 8px;
+}
+
+.forgot-link {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    color: #818cf8;
+    text-decoration: none;
+  }
+}
+
 
 /* Submit */
 .login-btn {

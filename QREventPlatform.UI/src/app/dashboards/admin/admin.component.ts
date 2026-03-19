@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { AdminSignalrService, AdminLiveEvent } from '../../core/signalr/admin-signalr.service';
 import { EventFormBuilderComponent } from './components/event-form-builder/event-form-builder.component';
 import { EmailTemplateBuilderComponent } from './components/email-template-builder/email-template-builder.component';
+import { ChangePasswordComponent } from '../components/change-password/change-password.component';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -22,7 +23,7 @@ type LiveLog = {
 @Component({
   standalone: true,
   selector: 'app-admin',
-  imports: [CommonModule, FormsModule, EventFormBuilderComponent, EmailTemplateBuilderComponent],
+  imports: [CommonModule, FormsModule, EventFormBuilderComponent, EmailTemplateBuilderComponent, ChangePasswordComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
 })
@@ -49,7 +50,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     | 'deleted'
     | 'scans'
     | 'formaudit'
-    | 'email' = 'events';
+    | 'email'
+    | 'settings' = 'events';
   liveLogs: { message: string; time: Date }[] = [];
   scanLogs: any[] = [];          // persistent logs
   liveFeed: AdminLiveEvent[] = []; // live events (top bar / toast)
@@ -97,6 +99,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     | 'scans'
     | 'formaudit'
     | 'email'
+    | 'settings'
   ) {
     this.activeTab = tab;
 
@@ -146,7 +149,7 @@ export class AdminComponent implements OnInit, OnDestroy {
 
     this.signalr.connect(this.token);
 
-    // ✅ CALL IT
+    // Setup listeners
     this.listenLiveEvents();
 
     // Live feed (top bar / toast)
@@ -194,17 +197,17 @@ export class AdminComponent implements OnInit, OnDestroy {
     // Optional confirmation
     if (!confirm('Logout from admin?')) return;
 
-    // 🔥 Clear auth data
+    // Clear auth data
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('userId');
 
-    // 🔌 Disconnect SignalR if present
+    // Disconnect SignalR if present
     try {
       this.signalr?.disconnect?.();
     } catch { }
 
-    // 🚪 Redirect to login
+    // Redirect to login
     this.router.navigate(['/login']);
   }
   loadEventTicketStats(eventId: string) {
@@ -441,7 +444,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       this.selectedEventId,
       this.selectedWorkerIds
     ).subscribe(() => {
-      // 🔄 refresh UI immediately
+      // refresh UI immediately
       this.onEventChange();
     });
   }
@@ -515,7 +518,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         alert(`Ticket sent to ${email}`);
         window.open(res.qrUrl, '_blank');
 
-        // 🔄 refresh event-specific data
+        // refresh event-specific data
         this.loadSummary();
         this.loadEventTicketStats(eventId);
         this.loadEventTickets(eventId);

@@ -68,7 +68,7 @@
                  name="password"
                  required
                  autocomplete="current-password"
-                 placeholder="••••••••"
+                 placeholder="********"
                  class="form-input password-input" />
 
           <button type="button"
@@ -91,6 +91,9 @@
             </svg>
           </button>
         </div>
+        <div class="forgot-link-wrapper">
+          <a routerLink="/forgot-password" class="forgot-link">Forgot Password?</a>
+        </div>
       </div>
 
       <!-- SUBMIT BUTTON -->
@@ -108,7 +111,7 @@
 
         <ng-container *ngIf="loading">
           <div class="spinner"></div>
-          <span>Signing in…</span>
+          <span>Signing in...</span>
         </ng-container>
       </button>
     </form>
@@ -116,7 +119,7 @@
     <!-- FOOTER -->
     <div class="login-footer">
       <span>QR Event Platform</span>
-      <span class="dot">•</span>
+      <span class="dot">|</span>
       <span>Enterprise Edition</span>
     </div>
 

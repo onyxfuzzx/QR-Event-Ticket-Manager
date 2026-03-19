@@ -6,13 +6,14 @@ import { WorkerScannerComponent } from './worker-scanner.component';
 import { playScanFeedback } from './scan-feedback';
 import { Router } from '@angular/router';
 import { AdminSignalrService, AdminLiveEvent } from '../../core/signalr/admin-signalr.service';
+import { ChangePasswordComponent } from '../components/change-password/change-password.component';
 
 type ScanResult = 'VALID' | 'INVALID' | 'REVALIDATED';
 
 @Component({
   standalone: true,
   selector: 'app-worker',
-  imports: [CommonModule, FormsModule, WorkerScannerComponent],
+  imports: [CommonModule, FormsModule, WorkerScannerComponent, ChangePasswordComponent],
   templateUrl: './worker.component.html',
   styleUrls: ['./worker.component.scss']
 })
@@ -31,6 +32,7 @@ export class WorkerComponent {
   }[] = [];
 
   scannerOpen = false;
+  activeTab: 'scan' | 'settings' = 'scan';
 
   constructor(private worker: WorkerService, private router: Router, private signalr: AdminSignalrService) { }
 
@@ -68,17 +70,17 @@ export class WorkerComponent {
     // Optional confirmation
     if (!confirm('Logout from scanner?')) return;
 
-    // 🔥 Clear auth data
+    // Clear auth data
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('userId');
 
-    // 🔌 Disconnect SignalR if present
+    // Disconnect SignalR if present
     try {
       this.signalr?.disconnect?.();
     } catch { }
 
-    // 🚪 Redirect to login
+    // Redirect to login
     this.router.navigate(['/login']);
   }
   // =========================

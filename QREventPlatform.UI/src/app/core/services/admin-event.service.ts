@@ -29,7 +29,7 @@ export class AdminEventService {
     return this.http.delete(`${this.baseUrl}/events/${eventId}`);
   }
 
-  /** 🔁 RESTORE EVENT */
+  /** RESTORE EVENT */
   restoreEvent(eventId: string) {
     return this.http.post(`${this.baseUrl}/events/${eventId}/restore`, {});
   }

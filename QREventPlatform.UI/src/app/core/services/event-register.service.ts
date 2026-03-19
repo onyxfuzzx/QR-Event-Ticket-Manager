@@ -9,21 +9,21 @@ export class EventRegisterService {
 
   constructor(private http: HttpClient) { }
 
-  // 🔹 Get event info (name, etc.)
+  // Get event info (name, etc.)
   getEvent(eventId: string): Observable<{ id: string; name: string }> {
     return this.http.get<{ id: string; name: string }>(
       `${this.api}/public/events/${eventId}`
     );
   }
 
-  // 🔹 Get dynamic form schema
+  // Get dynamic form schema
   getForm(eventId: string): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.api}/public/events/${eventId}/form`
     );
   }
 
-  // 🔹 Submit registration
+  // Submit registration
   submitForm(eventId: string, data: any): Observable<any> {
     return this.http.post(
       `${this.api}/public/events/${eventId}/submit`,

@@ -33,8 +33,8 @@ export class EventFormBuilderComponent implements OnInit, OnChanges {
     email: '@',
     phone: '#',
     number: '123',
-    dropdown: '▾',
-    textarea: '¶'
+    dropdown: '>',
+    textarea: 'T'
   };
 
   constructor(private formService: EventFormService) {}

@@ -23,11 +23,11 @@ export class AdminSignalrService {
   private hub?: HubConnection;
   private apiUrl = `${environment.apiUrl}`
   private hubUrl = `${environment.hubUrl}`
-  /** 🔴 Live events stream */
+  /** Live events stream */
   private events$ = new BehaviorSubject<AdminLiveEvent | null>(null);
   liveEvents$ = this.events$.asObservable();
 
-  /** 🔗 Connection state */
+  /** Connection state */
   private connected$ = new BehaviorSubject<boolean>(false);
   isConnected$ = this.connected$.asObservable();
 
@@ -52,11 +52,11 @@ export class AdminSignalrService {
     this.hub
       .start()
       .then(() => {
-        console.log('🟢 Admin SignalR connected');
+        console.log('Admin SignalR connected');
         this.connected$.next(true);
       })
       .catch(err => {
-        console.error('🔴 SignalR connection failed', err);
+        console.error('SignalR connection failed', err);
         this.connected$.next(false);
       });
   }
@@ -137,6 +137,6 @@ export class AdminSignalrService {
 
     this.hub.stop();
     this.connected$.next(false);
-    console.log('🟠 Admin SignalR disconnected');
+    console.log('Admin SignalR disconnected');
   }
 }
