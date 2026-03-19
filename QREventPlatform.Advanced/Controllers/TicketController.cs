@@ -17,11 +17,13 @@ public class TicketController : ControllerBase
 {
     private readonly DapperContext _ctx;
     private readonly IHubContext<AdminHub> _hub;
+    private readonly IConfiguration _config;
 
-    public TicketController(DapperContext ctx, IHubContext<AdminHub> hub)
+    public TicketController(DapperContext ctx, IHubContext<AdminHub> hub, IConfiguration config)
     {
         _ctx = ctx;
         _hub = hub;
+        _config = config;
     }
 
     // ============================
@@ -64,7 +66,8 @@ public class TicketController : ControllerBase
 
         var ticketId = Guid.NewGuid();
         var code = Guid.NewGuid().ToString("N");
-        var qrUrl = $"https://qrevent-hyd4e9acbcfueufk.canadacentral-01.azurewebsites.net/qr/{code}";
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        var qrUrl = $"{baseUrl}/qr/{code}";
 
         db.Execute(
             """
@@ -599,15 +602,20 @@ public class TicketController : ControllerBase
                 Id,
                 Code,
                 IsUsed,
-                CreatedAt,
-                CONCAT('https://qrevent-hyd4e9acbcfueufk.canadacentral-01.azurewebsites.net/qr/', Code) AS QrUrl
+                CreatedAt
             FROM Tickets
             WHERE EventId = @EventId
               AND IsActive = 1
             ORDER BY CreatedAt DESC
             ",
             new { EventId = eventId }
-        );
+        ).ToList();
+
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
+        foreach (var t in tickets)
+        {
+            t.QrUrl = $"{baseUrl}/qr/{t.Code}";
+        }
 
         return Ok(new EventTicketsResponse
         {

@@ -8,6 +8,7 @@ using QREventPlatform.Advanced.Security;
 using QREventPlatform.Advanced.Services;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
@@ -138,6 +139,11 @@ var app = builder.Build();
 // =======================
 // MIDDLEWARE
 // =======================
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

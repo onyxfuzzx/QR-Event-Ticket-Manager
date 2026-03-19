@@ -11,11 +11,13 @@ public class PublicEventController : ControllerBase
 {
     private readonly DapperContext _ctx;
     private readonly EmailService _email;
+    private readonly IConfiguration _config;
 
-    public PublicEventController(DapperContext ctx, EmailService email)
+    public PublicEventController(DapperContext ctx, EmailService email, IConfiguration config)
     {
         _ctx = ctx;
         _email = email;
+        _config = config;
     }
 
     // ===============================
@@ -54,12 +56,13 @@ public class PublicEventController : ControllerBase
         );
 
         // 2. Generate ticket
+        var baseUrl = $"{Request.Scheme}://{Request.Host}";
         var ticket = new Ticket
         {
             Id = Guid.NewGuid(),
             EventId = eventId,
             Code = Guid.NewGuid().ToString("N")[..8].ToUpper(),
-            QrUrl = $"https://qrevent-hyd4e9acbcfueufk.canadacentral-01.azurewebsites.net/qr/{Guid.NewGuid()}"
+            QrUrl = $"{baseUrl}/qr/{Guid.NewGuid()}"
         };
 
         await db.ExecuteAsync("""
